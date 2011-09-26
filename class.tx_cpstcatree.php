@@ -161,7 +161,6 @@ class tx_cpstcatree {
 
 		t3lib_div::loadTCA($this->table);
 		if ($this->table == 'tt_content') {
-
 			$flexFormArray = t3lib_BEfunc::getFlexFormDS($GLOBALS['TCA']['tt_content']['columns']['pi_flexform']['config'], $this->row, $this->table);
 			$this->fieldConfig = $flexFormArray['sheets'][$this->field[1]]['ROOT']['el'][$this->field[0]]['TCEforms']['config'];
 			$this->PA['itemFormElName'] = 'data['.$this->table.']['.$this->recID.'][pi_flexform][data]['.$this->field[1].']['.$this->field[2].']['.$this->field[0].']['.$this->field[3].']';
@@ -174,8 +173,6 @@ class tx_cpstcatree {
 		}
 		$this->itemFormElName = $this->PA['itemFormElName'];
 		$this->field = $this->field[0];
-
-		$this->PA['fieldTSConfig'] = t3lib_TCEforms::setTSconfig($this->table, $this->row, $this->field);
 
 		if (isset($this->fieldConfig['MM'])) {
 			$result = $GLOBALS['TYPO3_DB']->exec_SELECTquery('uid_foreign', $this->fieldConfig['MM'], 'uid_local='.$this->row['uid']);
@@ -256,33 +253,43 @@ class tx_cpstcatree {
 		$treeViewObj->expandFirst = $this->fieldConfig['expandFirst'];
 		$treeViewObj->expandAll = $this->fieldConfig['expandAll'];
 
+		if ($this->table == 'tt_content') {
+			$fieldTSConfig = t3lib_TCEforms::setTSconfig($this->table, $this->row);
+			$fieldTSConfig = $fieldTSConfig['pi_flexform'][$this->row['list_type'].'.'][$this->field.'.'];
+		} else{
+			$fieldTSConfig = t3lib_TCEforms::setTSconfig($this->table, $this->row, $this->field);
+		}
+
 		$clause = '';
 		// removeItems
 		$removeItems = array();
-		if ($this->PA['fieldTSConfig']['removeItems']) $removeItems = tx_cpsdevlib_div::toListArray(tx_cpsdevlib_db::getRootLineDownwards($treeViewObj->table, $treeViewObj->parentField, $this->PA['fieldTSConfig']['removeItems']), '', 1, 1, 1);
+		if ($fieldTSConfig['removeItems']) $removeItems = tx_cpsdevlib_div::toListArray(tx_cpsdevlib_db::getRootLineDownwards($treeViewObj->table, $treeViewObj->parentField, $fieldTSConfig['removeItems']), '', 1, 1, 1);
 
 		// keepItems
-		$keepItems = tx_cpsdevlib_div::toListArray($this->PA['fieldTSConfig']['keepItems']);
-		foreach($keepItems as $value) {
-			if (($key = array_search($value, $removeItems)) !== false) {
-				unset($removeItems[$key]);
-				$rL = tx_cpsdevlib_div::toListArray(tx_cpsdevlib_db::getRootLineUpwards($treeViewObj->table, 'pid', $value), '', 1, 1, 1);
-				foreach($rL as $v) {
-					if (($k = array_search($v, $removeItems)) !== false) {
-						$treeViewObj->TCEforms_nonSelectableItemsArray[] = $v;
-						unset($removeItems[$k]);
+		$keepItems = tx_cpsdevlib_div::toListArray($fieldTSConfig['keepItems']);
+		if (count($removeItems)) {	// If items were removed from list check keepItems to add back
+			foreach($keepItems as $value) {
+				if (($key = array_search($value, $removeItems)) !== false) {
+					unset($removeItems[$key]);
+					$rL = tx_cpsdevlib_div::toListArray(tx_cpsdevlib_db::getRootLineUpwards($treeViewObj->table, 'pid', $value), '', 1, 1, 1);
+					foreach($rL as $v) {
+						if (($k = array_search($v, $removeItems)) !== false) {
+							$treeViewObj->TCEforms_nonSelectableItemsArray[] = $v;
+							unset($removeItems[$k]);
+						}
 					}
 				}
+			}
+			$clause = ' AND '.$treeViewObj->table.'.uid NOT IN ('.implode(',', $removeItems).')';
+		} else {  // If just keepItems is set only show selected
+			if (count($keepItems)) {
+				$clause = ' AND '.$treeViewObj->table.'.uid IN ('.implode(',', $keepItems).')';
 			}
 		}
 
 		// hideItems
-		$hideItems = tx_cpsdevlib_div::toListArray($this->PA['fieldTSConfig']['hideItems']);
+		$hideItems = tx_cpsdevlib_div::toListArray($fieldTSConfig['hideItems']);
 		if (count($hideItems)) $treeViewObj->TCEforms_nonSelectableItemsArray = array_merge($treeViewObj->TCEforms_nonSelectableItemsArray, $hideItems);
-
-		if (count($removeItems)) {
-			$clause = ' AND '.$treeViewObj->table.'.uid NOT IN ('.implode(',', $removeItems).')';
-		}
 
 		$treeViewObj->init($clause, $orderBy);
 
@@ -306,7 +313,7 @@ class tx_cpstcatree {
 		} else {
 			if (($this->table == 'tt_content') AND ($this->row['pi_flexform'])) {
 				$xmlArray = t3lib_div::xml2array($this->row['pi_flexform']);
-				$selectedItems = t3lib_div::trimExplode(',', $xmlArray['data'][$this->piFlexForm['sheet']][$this->piFlexForm['lang']][$this->field][$this->piFlexForm['value']], 1);
+				$selectedItems = t3lib_div::trimExplode(',', $xmlArray['data'][$this->fieldConfig['piFlexFormSheet']][$this->fieldConfig['piFlexFormLang']][$this->field][$this->fieldConfig['piFlexFormValue']], 1);
 			}
 		}
 
