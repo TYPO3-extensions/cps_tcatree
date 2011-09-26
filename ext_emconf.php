@@ -15,7 +15,7 @@ $EM_CONF[$_EXTKEY] = array(
 	'description' => 'Adds a new type to tca configuration to display record lists (like tt_news)',
 	'category' => 'be',
 	'shy' => 0,
-	'version' => '0.1.3',
+	'version' => '0.1.4',
 	'dependencies' => '',
 	'conflicts' => '',
 	'priority' => '',
@@ -40,7 +40,7 @@ $EM_CONF[$_EXTKEY] = array(
 		'suggests' => array(
 		),
 	),
-	'_md5_values_when_last_written' => 'a:9:{s:9:"ChangeLog";s:4:"075b";s:23:"class.tx_cpstcatree.php";s:4:"f846";s:12:"ext_icon.gif";s:4:"3425";s:17:"ext_localconf.php";s:4:"9c63";s:14:"ext_tables.php";s:4:"2e85";s:17:"locallang_tca.xml";s:4:"1e49";s:14:"doc/manual.sxw";s:4:"61e9";s:19:"js/tx_cpstcatree.js";s:4:"4e88";s:36:"lib/class.tx_cpstcatree_treeview.php";s:4:"3ff8";}',
+	'_md5_values_when_last_written' => 'a:9:{s:9:"ChangeLog";s:4:"6c94";s:23:"class.tx_cpstcatree.php";s:4:"74f1";s:12:"ext_icon.gif";s:4:"3425";s:17:"ext_localconf.php";s:4:"9c63";s:14:"ext_tables.php";s:4:"2e85";s:17:"locallang_tca.xml";s:4:"1e49";s:14:"doc/manual.sxw";s:4:"85f5";s:19:"js/tx_cpstcatree.js";s:4:"4e88";s:36:"lib/class.tx_cpstcatree_treeview.php";s:4:"3ff8";}',
 );
 
 ?>

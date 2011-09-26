@@ -1,6 +1,19 @@
-2011-04-02 Nicole Cordes  <cordes@cps-it.de>
+2011-04-04 Nicole Cordes  <cordes@cps-it.de>
 
-	* Release of cps_tcatree 0.1.2
+	* Release of cps_tcatree 0.1.4
+
+2011-04-04 Nicole Cordes  <cordes@cps-it.de>
+
+	* Changed function ajaxExpandCollapse to support TYPO3 < 4.5
+	* Updated manual
+
+2011-04-04 Nicole Cordes  <cordes@cps-it.de>
+
+	* Release of cps_tcatree 0.1.3
+
+2011-04-04 Nicole Cordes  <cordes@cps-it.de>
+
+	* Updated manual
 
 2011-04-02 Nicole Cordes  <cordes@cps-it.de>
 
