@@ -41,57 +41,62 @@ class tx_cpstcatree_treeview extends t3lib_treeview {
 
 	function getBrowsableTree() {
 
-		$this->initializePositionSaving();
+		if ($GLOBALS['BE_USER']->check('tables_select', $this->table)) {
 
-		$treeArr = array();
-		$tmpClause = $this->clause;
-		$savedTable = $this->table;
+			$this->initializePositionSaving();
 
-		$this->tmpC = 0;
+			$treeArr = array();
+			$tmpClause = $this->clause;
+			$savedTable = $this->table;
 
-		foreach ($this->MOUNTS as $idx => $uid) {
+			$this->tmpC = 0;
 
-			$this->bank = $idx;
-			$isOpen = $this->stored[$idx][$uid] OR $this->expandFirst;
+			foreach ($this->MOUNTS as $idx => $uid) {
 
-			$curIds = $this->ids;
-			$this->reset();
-			$this->ids = $curIds;
+				$this->bank = $idx;
+				$isOpen = $this->stored[$idx][$uid] OR $this->expandFirst;
 
-			$cmd = $this->bank.'_'.($isOpen ? '0_' : '1_').$uid.'_'.$this->treeName;
+				$curIds = $this->ids;
+				$this->reset();
+				$this->ids = $curIds;
 
-			$icon = '<img'.t3lib_iconWorks::skinImg($this->backPath, 'gfx/ol/'.($isOpen ? 'minus' : 'plus').'only.gif').' alt="" />';
-			if (($this->expandable) AND (!$this->expandFirst)) {
-				$firstHtml = $this->PMiconATagWrap($icon, $cmd);
-			} else {
-				$firstHtml = $icon;
-			}
+				$cmd = $this->bank.'_'.($isOpen ? '0_' : '1_').$uid.'_'.$this->treeName;
 
-			$this->addStyle = '';
-
-			if ($uid) {
-				$rootRec = $this->getRecord($uid);
-				$firstHtml .= $this->getIcon($rootRec);
-			} else {
-				$rootRec = $this->getRootRecord($uid);
-				$firstHtml .= $this->getRootIcon($rootRec);
-			}
-
-			$this->table = $savedTable;
-
-			if (is_array($rootRec)) {
-				$uid = $rootRec['uid'];
-
-				$this->tree[] = array('HTML' => $firstHtml, 'row' => $rootRec, 'bank' => $this->bank, 'hasSub' => true, 'invertedDepth' => 1000);
-
-				if ($isOpen) {
-					if ($this->addSelfId) {
-						$this->ids[] = $uid;
-					}
-					$this->getTree($uid, ($this->treeView) ? 999 : 0, '', $rootRec['_SUBCSSCLASS']);
+				$icon = '<img'.t3lib_iconWorks::skinImg($this->backPath, 'gfx/ol/'.($isOpen ? 'minus' : 'plus').'only.gif').' alt="" />';
+				if (($this->expandable) AND (!$this->expandFirst)) {
+					$firstHtml = $this->PMiconATagWrap($icon, $cmd);
+				} else {
+					$firstHtml = $icon;
 				}
-				$treeArr = array_merge($treeArr, $this->tree);
+
+				$this->addStyle = '';
+
+				if ($uid) {
+					$rootRec = $this->getRecord($uid);
+					$firstHtml .= $this->getIcon($rootRec);
+				} else {
+					$rootRec = $this->getRootRecord($uid);
+					$firstHtml .= $this->getRootIcon($rootRec);
+				}
+
+				$this->table = $savedTable;
+
+				if (is_array($rootRec)) {
+					$uid = $rootRec['uid'];
+
+					$this->tree[] = array('HTML' => $firstHtml, 'row' => $rootRec, 'bank' => $this->bank, 'hasSub' => true, 'invertedDepth' => 1000);
+
+					if ($isOpen) {
+						if ($this->addSelfId) {
+							$this->ids[] = $uid;
+						}
+						$this->getTree($uid, ($this->treeView) ? 999 : 0, '', $rootRec['_SUBCSSCLASS']);
+					}
+					$treeArr = array_merge($treeArr, $this->tree);
+				}
 			}
+		} else {
+			$treeArr[] = array('HTML' => '<img'.t3lib_iconWorks::skinImg($this->backPath, 'gfx/ol/minusonly.gif').' alt="" /><em>'.$GLOBALS['LANG']->sL('LLL:EXT:cps_tcatree/locallang_tca.xml:cps_tcatree.treeview.noAccess').'</em>');
 		}
 
 		return $this->printTree($treeArr);
@@ -136,43 +141,45 @@ class tx_cpstcatree_treeview extends t3lib_treeview {
 		foreach ($allRows as $row) {
 			$a++;
 
-			$newID = $row['uid'];
-			$this->tree[] = array();
-			end($this->tree);
-			$treeKey = key($this->tree);
-			$LN = ($a == $c) ? 'blank' : 'line';
+			if ((!(t3lib_div::inList('pages', $this->table))) OR (t3lib_BEfunc::readPageAccess($row['uid'], $GLOBALS['BE_USER']->getPagePermsClause(1)))) {
+				$newID = $row['uid'];
+				$this->tree[] = array();
+				end($this->tree);
+				$treeKey = key($this->tree);
+				$LN = ($a == $c) ? 'blank' : 'line';
 
-			if ($this->setRecs) {
-				$this->recs[$row['uid']] = $row;
-			}
+				if ($this->setRecs) {
+					$this->recs[$row['uid']] = $row;
+				}
 
-			$this->ids[] = $idH[$row['uid']]['uid'] = $row['uid'];
-			$this->ids_hierarchy[$depth][] = $row['uid'];
+				$this->ids[] = $idH[$row['uid']]['uid'] = $row['uid'];
+				$this->ids_hierarchy[$depth][] = $row['uid'];
 
-			if ($this->treeView) {
-				if (($depth > 1) AND ($this->expandNext($newID))) {
-					$nextCount = $this->getTree($newID, $depth - 1, $blankLineCode.','.$LN, $row['_SUBCSSCLASS']);
-					if (count($this->buffer_idH)) {
-						$idH[$row['uid']]['subrow'] = $this->buffer_idH;
+				if ($this->treeView) {
+					if (($depth > 1) AND ($this->expandNext($newID))) {
+						$nextCount = $this->getTree($newID, $depth - 1, $blankLineCode.','.$LN, $row['_SUBCSSCLASS']);
+						if (count($this->buffer_idH)) {
+							$idH[$row['uid']]['subrow'] = $this->buffer_idH;
+						}
+						$exp = 1;
+					} else {
+						$nextCount = $this->getCount($newID);
+						$exp = 0;
 					}
-					$exp = 1;
+
 				} else {
-					$nextCount = $this->getCount($newID);
+					$nextCount = 0;
 					$exp = 0;
 				}
 
-			} else {
-				$nextCount = 0;
-				$exp = 0;
-			}
+				if ($this->makeHTML) {
+					$HTML = '';
+					$HTML .= $this->PMicon($row, $a, $c, $nextCount, $exp);
+					$HTML .= $this->wrapStop($this->getIcon($row), $row);
+				}
 
-			if ($this->makeHTML) {
-				$HTML = '';
-				$HTML .= $this->PMicon($row, $a, $c, $nextCount, $exp);
-				$HTML .= $this->wrapStop($this->getIcon($row), $row);
+				$this->tree[$treeKey] = array('row' => $row, 'HTML' => $HTML, 'hasSub' => ((($nextCount) AND ($this->expandNext($newID))) ? 1 : 0), 'isFirst' => $a == 1, 'isLast' => false, 'invertedDepth' => $depth, 'blankLineCode' => $blankLineCode, 'bank' => $this->bank);
 			}
-
-			$this->tree[$treeKey] = array('row' => $row, 'HTML' => $HTML, 'hasSub' => ((($nextCount) AND ($this->expandNext($newID))) ? 1 : 0), 'isFirst' => $a == 1, 'isLast' => false, 'invertedDepth' => $depth, 'blankLineCode' => $blankLineCode, 'bank' => $this->bank);
 		}
 
 		if ($a) {
@@ -204,7 +211,7 @@ class tx_cpstcatree_treeview extends t3lib_treeview {
 
 	function PMiconATagWrap($icon, $cmd, $isExpand = true) {
 		if (($this->thisScript) AND ($this->expandable)) {
-			$js = htmlspecialchars('tceFormsItemTree.load(\''.$cmd.'\', '.intval($isExpand).', this, \''.$this->tceFormsTable.'\', \''.$this->tceFormsField.'\', \''.$this->tceFormsRecID.'\');');
+			$js = htmlspecialchars('tceFormsItemTree.load(\''.$cmd.'\', '.intval($isExpand).', this, \''.$this->tceFormsTable.'\', \''.$this->tceFormsField.'\', \''.$this->tceFormsRecID.'\', \''.$this->tceFormsFFConf.'\');');
 			return '<a class="pm" onclick="'.$js.'">'.$icon.'</a>';
 		} else {
 			return $icon;
@@ -265,8 +272,13 @@ class tx_cpstcatree_treeview extends t3lib_treeview {
 				$classAttr .= ($classAttr ? ' ' : '').'active';
 			}
 
-			$itemHTML .= '
-				<li id="'.$idAttr.'"'.$addStyle.($classAttr ? ' class="'.$classAttr.'"' : '').'>'.$v['HTML'].$this->wrapTitle($this->getTitleStr($v['row'], $titleLen), $v['row'], $v['bank'])."\n";
+			if ($v['row']) {
+				$itemHTML .= '
+					<li id="'.$idAttr.'"'.$addStyle.($classAttr ? ' class="'.$classAttr.'"' : '').'>'.$v['HTML'].$this->wrapTitle($this->getTitleStr($v['row'], $titleLen), $v['row'], $v['bank'])."\n";
+			} else {
+				$itemHTML .= '
+					<li id="'.$idAttr.'"'.$addStyle.($classAttr ? ' class="'.$classAttr.'"' : '').'>'.$v['HTML']."\n";
+			}
 
 			if (! $v['hasSub']) {
 				$itemHTML .= '</li>';

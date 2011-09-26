@@ -10,6 +10,7 @@
 	<data type="array">
 		<languageKey index="default" type="array">
 			<label index="cps_tcatree.treeview.allPages">[From all pages]</label>
+			<label index="cps_tcatree.treeview.noAccess">No access to table</label>
 		</languageKey>
 	</data>
 </T3locallang>
