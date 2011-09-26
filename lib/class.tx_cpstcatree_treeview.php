@@ -1,29 +1,29 @@
 <?php
 /***************************************************************
-*  Copyright notice
-*
-*  (c) 2011 Nicole Cordes <cordes@cps-it.de>
-*  All rights reserved
-*
-*  This script is part of the TYPO3 project. The TYPO3 project is
-*  free software; you can redistribute it and/or modify
-*  it under the terms of the GNU General Public License as published by
-*  the Free Software Foundation; either version 2 of the License, or
-*  (at your option) any later version.
-*
-*  The GNU General Public License can be found at
-*  http://www.gnu.org/copyleft/gpl.html.
-*  A copy is found in the textfile GPL.txt and important notices to the license
-*  from the author is found in LICENSE.txt distributed with these scripts.
-*
-*
-*  This script is distributed in the hope that it will be useful,
-*  but WITHOUT ANY WARRANTY; without even the implied warranty of
-*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-*  GNU General Public License for more details.
-*
-*  This copyright notice MUST APPEAR in all copies of the script!
-***************************************************************/
+ *  Copyright notice
+ *
+ *  (c) 2011 Nicole Cordes <cordes@cps-it.de>
+ *  All rights reserved
+ *
+ *  This script is part of the TYPO3 project. The TYPO3 project is
+ *  free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  The GNU General Public License can be found at
+ *  http://www.gnu.org/copyleft/gpl.html.
+ *  A copy is found in the textfile GPL.txt and important notices to the license
+ *  from the author is found in LICENSE.txt distributed with these scripts.
+ *
+ *
+ *  This script is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  This copyright notice MUST APPEAR in all copies of the script!
+ ***************************************************************/
 /**
  * This function displays a selector styled as tree
  * The original code is borrowed from the extension "News" (tt_news) author: Rupert Germann <rupi@gmx.li>
@@ -33,7 +33,7 @@
  * @subpackage cps_tcatree
  */
 
-require_once (PATH_t3lib.'class.t3lib_treeview.php');
+require_once (PATH_t3lib . 'class.t3lib_treeview.php');
 
 class tx_cpstcatree_treeview extends t3lib_treeview {
 	var $TCEforms_itemFormElName;
@@ -60,9 +60,9 @@ class tx_cpstcatree_treeview extends t3lib_treeview {
 				$this->reset();
 				$this->ids = $curIds;
 
-				$cmd = $this->bank.'_'.($isOpen ? '0_' : '1_').$uid.'_'.$this->treeName;
+				$cmd = $this->bank . '_' . ($isOpen ? '0_' : '1_') . $uid . '_' . $this->treeName;
 
-				$icon = '<img'.t3lib_iconWorks::skinImg($this->backPath, 'gfx/ol/'.($isOpen ? 'minus' : 'plus').'only.gif').' alt="" />';
+				$icon = '<img' . t3lib_iconWorks::skinImg($this->backPath, 'gfx/ol/' . ($isOpen ? 'minus' : 'plus') . 'only.gif') . ' alt="" />';
 				if (($this->expandable) AND (!$this->expandFirst)) {
 					$firstHtml = $this->PMiconATagWrap($icon, $cmd);
 				} else {
@@ -96,7 +96,7 @@ class tx_cpstcatree_treeview extends t3lib_treeview {
 				}
 			}
 		} else {
-			$treeArr[] = array('HTML' => '<img'.t3lib_iconWorks::skinImg($this->backPath, 'gfx/ol/minusonly.gif').' alt="" /><em>'.$GLOBALS['LANG']->sL('LLL:EXT:cps_tcatree/locallang_tca.xml:cps_tcatree.treeview.noAccess').'</em>');
+			$treeArr[] = array('HTML' => '<img' . t3lib_iconWorks::skinImg($this->backPath, 'gfx/ol/minusonly.gif') . ' alt="" /><em>' . $GLOBALS['LANG']->sL('LLL:EXT:cps_tcatree/locallang_tca.xml:cps_tcatree.treeview.noAccess') . '</em>');
 		}
 
 		return $this->printTree($treeArr);
@@ -157,7 +157,7 @@ class tx_cpstcatree_treeview extends t3lib_treeview {
 
 				if ($this->treeView) {
 					if (($depth > 1) AND ($this->expandNext($newID))) {
-						$nextCount = $this->getTree($newID, $depth - 1, $blankLineCode.','.$LN, $row['_SUBCSSCLASS']);
+						$nextCount = $this->getTree($newID, $depth - 1, $blankLineCode . ',' . $LN, $row['_SUBCSSCLASS']);
 						if (count($this->buffer_idH)) {
 							$idH[$row['uid']]['subrow'] = $this->buffer_idH;
 						}
@@ -200,10 +200,10 @@ class tx_cpstcatree_treeview extends t3lib_treeview {
 		}
 
 		$BTM = ($a == $c) ? 'bottom' : '';
-		$icon = '<img'.t3lib_iconWorks::skinImg($this->backPath, 'gfx/ol/'.$PM.$BTM.'.gif', 'width="18" height="16"').' alt="" />';
+		$icon = '<img' . t3lib_iconWorks::skinImg($this->backPath, 'gfx/ol/' . $PM . $BTM . '.gif', 'width="18" height="16"') . ' alt="" />';
 
 		if ($nextCount) {
-			$cmd = $this->bank.'_'.($exp ? '0_' : '1_').$row['uid'].'_'.$this->treeName;
+			$cmd = $this->bank . '_' . ($exp ? '0_' : '1_') . $row['uid'] . '_' . $this->treeName;
 			$icon = $this->PMiconATagWrap($icon, $cmd, !$exp);
 		}
 		return $icon;
@@ -211,17 +211,17 @@ class tx_cpstcatree_treeview extends t3lib_treeview {
 
 	function PMiconATagWrap($icon, $cmd, $isExpand = true) {
 		if (($this->thisScript) AND ($this->expandable)) {
-			$js = htmlspecialchars('tceFormsItemTree.load(\''.$cmd.'\', '.intval($isExpand).', this, \''.$this->tceFormsTable.'\', \''.$this->tceFormsField.'\', \''.$this->tceFormsRecID.'\', \''.$this->tceFormsFFConf.'\');');
-			return '<a class="pm" onclick="'.$js.'">'.$icon.'</a>';
+			$js = htmlspecialchars('tceFormsItemTree.load(\'' . $cmd . '\', ' . intval($isExpand) . ', this, \'' . $this->tceFormsTable . '\', \'' . $this->tceFormsField . '\', \'' . $this->tceFormsRecID . '\', \'' . $this->tceFormsFFConf . '\');');
+			return '<a class="pm" onclick="' . $js . '">' . $icon . '</a>';
 		} else {
 			return $icon;
 		}
 	}
 
 	function printTree($treeArr = '') {
-		$titleLen = $this->titleLen;
+		$titleLen = $GLOBALS['BE_USER']->uc['titleLen'];
 
-		if (! is_array($treeArr)) {
+		if (!is_array($treeArr)) {
 			$treeArr = $this->tree;
 		}
 
@@ -254,7 +254,7 @@ class tx_cpstcatree_treeview extends t3lib_treeview {
 		foreach ($treeArr as $v) {
 			$classAttr = $v['row']['_CSSCLASS'];
 			$uid = $v['row']['uid'];
-			$idAttr = htmlspecialchars($this->domIdPrefix.$this->getId($v['row']).'_'.$v['bank']);
+			$idAttr = htmlspecialchars($this->domIdPrefix . $this->getId($v['row']) . '_' . $v['bank']);
 			$itemHTML = '';
 			$addStyle = '';
 
@@ -263,24 +263,24 @@ class tx_cpstcatree_treeview extends t3lib_treeview {
 			}
 
 			if ($v['hasSub']) {
-				$classAttr .= ($classAttr ? ' ' : '').'expanded';
+				$classAttr .= ($classAttr ? ' ' : '') . 'expanded';
 			}
 			if ($v['isLast']) {
-				$classAttr .= ($classAttr ? ' ' : '').'last';
+				$classAttr .= ($classAttr ? ' ' : '') . 'last';
 			}
 			if (($uid) AND ($uid == $this->category)) {
-				$classAttr .= ($classAttr ? ' ' : '').'active';
+				$classAttr .= ($classAttr ? ' ' : '') . 'active';
 			}
 
 			if ($v['row']) {
 				$itemHTML .= '
-					<li id="'.$idAttr.'"'.$addStyle.($classAttr ? ' class="'.$classAttr.'"' : '').'>'.$v['HTML'].$this->wrapTitle($this->getTitleStr($v['row'], $titleLen), $v['row'], $v['bank'])."\n";
+					<li id="' . $idAttr . '"' . $addStyle . ($classAttr ? ' class="' . $classAttr . '"' : '') . '>' . $v['HTML'] . $this->wrapTitle($this->getTitleStr($v['row'], $titleLen), $v['row'], $v['bank']) . "\n";
 			} else {
 				$itemHTML .= '
-					<li id="'.$idAttr.'"'.$addStyle.($classAttr ? ' class="'.$classAttr.'"' : '').'>'.$v['HTML']."\n";
+					<li id="' . $idAttr . '"' . $addStyle . ($classAttr ? ' class="' . $classAttr . '"' : '') . '>' . $v['HTML'] . "\n";
 			}
 
-			if (! $v['hasSub']) {
+			if (!$v['hasSub']) {
 				$itemHTML .= '</li>';
 			}
 
@@ -323,25 +323,47 @@ class tx_cpstcatree_treeview extends t3lib_treeview {
 		return $out;
 	}
 
-	function getTitleStr($row, $titleLen=30) {
-		$title = (strlen(trim($row['title'])) == 0) ? '['.$GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.php:labels.no_title', 1).']' : htmlspecialchars(t3lib_div::fixed_lgd_cs($row['title'] , $titleLen));
+	function getTitleStr($row, $titleLen = 30) {
+
+		// Generate title proper to label and label_alt
+		$title = t3lib_BEfunc::getProcessedValue($this->table, $GLOBALS['TCA'][$this->table]['ctrl']['label'], $row[$GLOBALS['TCA'][$this->table]['ctrl']['label']], 0, 0, false, $row['uid']);
+		if ($GLOBALS['TCA'][$this->table]['ctrl']['label_alt'] AND ($GLOBALS['TCA'][$this->table]['ctrl']['label_alt_force'] OR !strcmp($title, ''))) {
+			$altFields = t3lib_div::trimExplode(',', $GLOBALS['TCA'][$this->table]['ctrl']['label_alt'], 1);
+			$titleAlt = array();
+			if (!empty($title)) $titleAlt[] = $title;
+			foreach ($altFields as $value) {
+				$title = trim(strip_tags($row[$value]));
+				if (strcmp($title, '')) {
+					$title = t3lib_BEfunc::getProcessedValue($this->table, $value, $title, 0, 0, false, $row['uid']);
+					if (!$GLOBALS['TCA'][$this->table]['ctrl']['label_alt_force']) {
+						break;
+					}
+					$titleAlt[] = $title;
+				}
+			}
+			if ($GLOBALS['TCA'][$this->table]['ctrl']['label_alt_force']) {
+				$title = implode(', ', $titleAlt);
+			}
+		}
+
+		$title = (strlen(trim($title)) == 0) ? '[' . $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.php:labels.no_title', 1) . ']' : htmlspecialchars(t3lib_div::fixed_lgd_cs($title, $titleLen));
 
 		return $title;
 	}
 
-	function wrapTitle($title, $row, $bank)	{
+	function wrapTitle($title, $row, $bank) {
 		if ($row['uid'] > 0) {
 			if (in_array($row['uid'], $this->TCEforms_nonSelectableItemsArray)) {
 				$style = $this->getTitleStyles($row);
-				return '<a href="#" title="'.$title.' [uid: '.$row['uid'].']"><span style="color: #999; cursor:default; '.$style.'">'.$title.'</span></a>';
+				return '<a href="#" title="' . $title . ' [uid: ' . $row['uid'] . ']"><span style="color: #999; cursor:default; ' . $style . '">' . $title . '</span></a>';
 			} else {
-				$aOnClick = 'setFormValueFromBrowseWin(\''.$this->TCEforms_itemFormElName.'\', '.$row['uid'].', \''.t3lib_div::slashJS($title).'\'); return false;';
+				$aOnClick = 'setFormValueFromBrowseWin(\'' . $this->TCEforms_itemFormElName . '\', ' . $row['uid'] . ', \'' . t3lib_div::slashJS($title) . '\'); return false;';
 				$style = $this->getTitleStyles($row);
-				return '<a href="#" onclick="'.htmlspecialchars($aOnClick).'" title="'.$title.' [uid: '.$row['uid'].']"><span style="'.$style.'">'.$title.'</span></a>';
+				return '<a href="#" onclick="' . htmlspecialchars($aOnClick) . '" title="' . $title . ' [uid: ' . $row['uid'] . ']"><span style="' . $style . '">' . $title . '</span></a>';
 			}
 		} else {
-			$pidLbl = ' <span class="typo3-dimmed"><em>'.$GLOBALS['LANG']->sL('LLL:EXT:cps_tcatree/locallang_tca.xml:cps_tcatree.treeview.allPages').'</em></span>';
-			return $title.$pidLbl;
+			$pidLbl = ' <span class="typo3-dimmed"><em>' . $GLOBALS['LANG']->sL('LLL:EXT:cps_tcatree/locallang_tca.xml:cps_tcatree.treeview.allPages') . '</em></span>';
+			return $title . $pidLbl;
 		}
 	}
 }
