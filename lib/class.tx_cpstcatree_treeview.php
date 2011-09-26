@@ -323,15 +323,21 @@ class tx_cpstcatree_treeview extends t3lib_treeview {
 		return $out;
 	}
 
+	function getTitleStr($row, $titleLen=30) {
+		$title = (strlen(trim($row['title'])) == 0) ? '['.$GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.php:labels.no_title', 1).']' : htmlspecialchars(t3lib_div::fixed_lgd_cs($row['title'] , $titleLen));
+
+		return $title;
+	}
+
 	function wrapTitle($title, $row, $bank)	{
 		if ($row['uid'] > 0) {
 			if (in_array($row['uid'], $this->TCEforms_nonSelectableItemsArray)) {
 				$style = $this->getTitleStyles($row);
-				return '<a href="#" title="'.$title.'"><span style="color: #999; cursor:default; '.$style.'">'.$title.'</span></a>';
+				return '<a href="#" title="'.$title.' [uid: '.$row['uid'].']"><span style="color: #999; cursor:default; '.$style.'">'.$title.'</span></a>';
 			} else {
 				$aOnClick = 'setFormValueFromBrowseWin(\''.$this->TCEforms_itemFormElName.'\', '.$row['uid'].', \''.t3lib_div::slashJS($title).'\'); return false;';
 				$style = $this->getTitleStyles($row);
-				return '<a href="#" onclick="'.htmlspecialchars($aOnClick).'" title="'.$title.'"><span style="'.$style.'">'.$title.'</span></a>';
+				return '<a href="#" onclick="'.htmlspecialchars($aOnClick).'" title="'.$title.' [uid: '.$row['uid'].']"><span style="'.$style.'">'.$title.'</span></a>';
 			}
 		} else {
 			$pidLbl = ' <span class="typo3-dimmed"><em>'.$GLOBALS['LANG']->sL('LLL:EXT:cps_tcatree/locallang_tca.xml:cps_tcatree.treeview.allPages').'</em></span>';

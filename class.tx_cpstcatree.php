@@ -45,12 +45,14 @@ class tx_cpstcatree {
 	var $itemFormElName;
 	var $parentField;
 
+	var $hideItems = array();
+	var $keepItems = array();
+	var $removeItems = array();
+
 	var $divObj;
 	var $selectedItems = array();
 
 	function init(&$PA) {
-
-
 		$this->PA = &$PA;
 		$this->itemFormElName = $this->PA['itemFormElName'];
 		$this->table = $PA['table'];
@@ -80,13 +82,6 @@ class tx_cpstcatree {
 		$minitems = t3lib_div::intInRange($this->fieldConfig['minitems'], 0);
 		$size = t3lib_div::intInRange($this->fieldConfig['size'],0, 2000000000, 1);
 
-		if (isset($this->PA['fieldTSConfig']['noMatchingValue_label'])) {
-			$nMV_label = $GLOBALS['LANG']->sL($this->PA['fieldTSConfig']['noMatchingValue_label']);
-		} else {
-			$nMV_label = '[ '.$fobj->getLL('l_noMatchingValue').' ]';
-		}
-		$nMV_label = @sprintf($nMV_label, $this->PA['itemFormElValue']);
-
 		$this->registerRequiredProperty('range', $this->itemFormElName, array($minitems, $maxitems, 'imgName' => $this->table.'_'.$this->row['uid'].'_'.$this->field), $fobj);
 
 		$content .= '<input type="hidden" name="'.$this->itemFormElName.'_mul" value="'.($this->fieldConfig['multiple'] ? 1 : 0).'" />';
@@ -98,11 +93,20 @@ class tx_cpstcatree {
 			$thumbnails .= '</div>';
 		}
 
+		// Get label for non matching values from tsconfig or t3lib_tceforms
+		if (isset($this->PA['fieldTSConfig']['noMatchingValue_label'])) {
+			$nMV_label = $GLOBALS['LANG']->sL($this->PA['fieldTSConfig']['noMatchingValue_label']);
+		} else {
+			$nMV_label = '[ '.$fobj->getLL('l_noMatchingValue').' ]';
+		}
+		$nMV_label = @sprintf($nMV_label, $this->PA['itemFormElValue']);
+
+		// Check all selected items for hidden records
 		$itemArray = t3lib_div::trimExplode(',', $this->PA['itemFormElValue'], 1);
 		foreach($itemArray as $key => $item) {
 			$item = explode('|', $item, 2);
 			$evalValue = rawurldecode($item[0]);
-			if ((in_array($evalValue, $removeItems)) AND (!$this->PA['fieldTSConfig']['disableNoMatchingValueElement']))	{
+			if ((in_array($evalValue, $this->removeItems)) AND (!$this->PA['fieldTSConfig']['disableNoMatchingValueElement']))	{ // If item should be hidden
 				$item[1] = $nMV_label;
 			}
 			$item[1] = rawurldecode($item[1]);
@@ -123,6 +127,8 @@ class tx_cpstcatree {
 			'noBrowser' => 1,
 			'thumbnails' => $thumbnails
 		);
+
+		// Get select field with browser
 		$content .= $fobj->dbFileIcons($this->itemFormElName, '', '', $itemArray, '', $params, $this->PA['onFocus']);
 
 		$altItem = '<input type="hidden" name="'.$this->itemFormElName.'" value="'.htmlspecialchars($this->PA['itemFormElValue']).'" />';
@@ -262,34 +268,41 @@ class tx_cpstcatree {
 
 		$clause = '';
 		// removeItems
-		$removeItems = array();
-		if ($fieldTSConfig['removeItems']) $removeItems = tx_cpsdevlib_div::toListArray(tx_cpsdevlib_db::getRootLineDownwards($treeViewObj->table, $treeViewObj->parentField, $fieldTSConfig['removeItems']), '', 1, 1, 1);
+		if (isset($fieldTSConfig['removeItems'])) {
+			$this->removeItems = tx_cpsdevlib_div::toListArray(tx_cpsdevlib_db::getRootLineDownwards($treeViewObj->table, $treeViewObj->parentField, $fieldTSConfig['removeItems']), '', 1, 1, 1);
+		}
 
 		// keepItems
-		$keepItems = tx_cpsdevlib_div::toListArray($fieldTSConfig['keepItems']);
-		if (count($removeItems)) {	// If items were removed from list check keepItems to add back
-			foreach($keepItems as $value) {
-				if (($key = array_search($value, $removeItems)) !== false) {
-					unset($removeItems[$key]);
-					$rL = tx_cpsdevlib_div::toListArray(tx_cpsdevlib_db::getRootLineUpwards($treeViewObj->table, 'pid', $value), '', 1, 1, 1);
-					foreach($rL as $v) {
-						if (($k = array_search($v, $removeItems)) !== false) {
-							$treeViewObj->TCEforms_nonSelectableItemsArray[] = $v;
-							unset($removeItems[$k]);
+		if (isset($fieldTSConfig['keepItems'])) {
+			$this->keepItems = tx_cpsdevlib_div::toListArray($fieldTSConfig['keepItems']);
+			if (count($this->removeItems)) {	// If items were removed from list check keepItems to add back
+				foreach($this->keepItems as $value) {
+					if (($key = array_search($value, $this->removeItems)) !== false) {
+						unset($this->removeItems[$key]);
+						// Get rootline upwards to restore parent items
+						$rL = tx_cpsdevlib_div::toListArray(tx_cpsdevlib_db::getRootLineUpwards($treeViewObj->table, 'pid', $value), '', 1, 1, 1);
+						foreach($rL as $v) {
+							if (($k = array_search($v, $this->removeItems)) !== false) {
+								$treeViewObj->TCEforms_nonSelectableItemsArray[] = $v;
+								unset($this->removeItems[$k]);
+							}
 						}
 					}
 				}
-			}
-			$clause = ' AND '.$treeViewObj->table.'.uid NOT IN ('.implode(',', $removeItems).')';
-		} else {  // If just keepItems is set only show selected
-			if (count($keepItems)) {
-				$clause = ' AND '.$treeViewObj->table.'.uid IN ('.implode(',', $keepItems).')';
+			} else {  // If just keepItems is set only show selected
+				if (count($this->keepItems)) {
+					$clause = ' AND '.$treeViewObj->table.'.uid IN ('.implode(',', $this->keepItems).')';
+				}
 			}
 		}
 
+		if (count($this->removeItems)) $clause = ' AND '.$treeViewObj->table.'.uid NOT IN ('.implode(',', $this->removeItems).')';
+
 		// hideItems
-		$hideItems = tx_cpsdevlib_div::toListArray($fieldTSConfig['hideItems']);
-		if (count($hideItems)) $treeViewObj->TCEforms_nonSelectableItemsArray = array_merge($treeViewObj->TCEforms_nonSelectableItemsArray, $hideItems);
+		if (isset($fieldTSConfig['hideItems'])) {
+			$this->hideItems = tx_cpsdevlib_div::toListArray($fieldTSConfig['hideItems']);
+			$treeViewObj->TCEforms_nonSelectableItemsArray = array_merge($treeViewObj->TCEforms_nonSelectableItemsArray, $this->hideItems);
+		}
 
 		// Hook to manipulate clause
 		$parameter = array(
