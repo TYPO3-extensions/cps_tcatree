@@ -49,12 +49,22 @@ class tx_cpstcatree {
 	var $selectedItems = array();
 
 	function init(&$PA) {
+
+
 		$this->PA = &$PA;
+		$this->itemFormElName = $this->PA['itemFormElName'];
 		$this->table = $PA['table'];
-		$this->field = $PA['field'];
 		$this->row = $PA['row'];
 		$this->fieldConfig = $PA['fieldConf']['config'];
-		$this->itemFormElName = $this->PA['itemFormElName'];
+		if (($this->table == 'tt_content') AND ($PA['field'] == 'pi_flexform')) {
+			$ELNameArray = t3lib_div::trimExplode('[', $this->itemFormElName);
+			$this->field = substr($ELNameArray[7], 0, -1);
+			$this->fieldConfig['piFlexFormSheet'] = substr($ELNameArray[5], 0, -1);
+			$this->fieldConfig['piFlexFormLang'] = substr($ELNameArray[6], 0, -1);
+			$this->fieldConfig['piFlexFormValue'] = substr($ELNameArray[8], 0, -1);
+		} else {
+			$this->field = $PA['field'];
+		}
 		$this->setSelectedItems();
 	}
 
@@ -145,11 +155,24 @@ class tx_cpstcatree {
 
 		$this->table = trim(t3lib_div::_GP('tceFormsTable'));
 		$this->field = trim(t3lib_div::_GP('tceFormsField'));
+		$this->recID = trim(t3lib_div::_GP('recID'));
 
 		t3lib_div::loadTCA($this->table);
-		$this->fieldConfig = $GLOBALS['TCA'][$this->table]['columns'][$this->field]['config'];
+		if ($this->table == 'tt_content') {
+			$this->field = t3lib_div::trimExplode(',', $this->field, 1);
+			$flexFormArray = t3lib_BEfunc::getRegisteredFlexForms($this->table);
+			$this->fieldConfig = $flexFormArray['pi_flexform'][$this->field[0]]['ds']['sheets'][$this->field[2]]['ROOT']['el'][$this->field[1]]['TCEforms']['config'];
+			$this->PA['itemFormElName'] = 'data['.$this->table.']['.$this->recID.'][pi_flexform][data]['.$this->field[2].']['.$this->field[3].']['.$this->field[1].']['.$this->field[4].']';
+			$this->fieldConfig['piFlexFormSheet'] = $this->field[2];
+			$this->fieldConfig['piFlexFormLang'] = $this->field[3];
+			$this->fieldConfig['piFlexFormValue'] = $this->field[4];
+			$this->field = $this->field[1];
+		} else {
+			$this->fieldConfig = $GLOBALS['TCA'][$this->table]['columns'][$this->field]['config'];
+			$this->PA['itemFormElName'] = 'data['.$this->table.']['.$this->recID.']['.$this->field.']';
+		}
+		$this->itemFormElName = $this->PA['itemFormElName'];
 
-		$this->recID = trim(t3lib_div::_GP('recID'));
 		if (intval($this->recID) == $this->recID) {
 			$this->row = t3lib_BEfunc::getRecord($this->table, $this->recID);
 		}
@@ -165,9 +188,6 @@ class tx_cpstcatree {
 		} else {
 			$this->row = array('uid' => $this->recID);
 		}
-
-		$this->PA['itemFormElName'] = 'data['.$this->table.']['.$this->recID.']['.$this->field.']';
-		$this->itemFormElName = $this->PA['itemFormElName'];
 
 		$tree = $this->renderTree();
 
@@ -227,9 +247,14 @@ class tx_cpstcatree {
 		$treeViewObj->treeName = $this->table.'_'.$this->field.'_tree';
 		$treeViewObj->table = $this->fieldConfig['foreign_table'];
 		$treeViewObj->parentField = $this->parentField;
-		$treeViewObj->fieldArray = array('uid', 'title', 'hidden');
+		//$treeViewObj->fieldArray = array('uid', 'title', 'hidden');
+		$treeViewObj->fieldArray = array('*');
 		$treeViewObj->tceFormsTable = $this->table;
-		$treeViewObj->tceFormsField = $this->field;
+		if ($this->table == 'tt_content') {
+			$treeViewObj->tceFormsField = $this->row['list_type'].','.$this->field.','.$this->fieldConfig['piFlexFormSheet'].','.$this->fieldConfig['piFlexFormLang'].','.$this->fieldConfig['piFlexFormValue'];
+		} else {
+			$treeViewObj->tceFormsField = $this->field;
+		}
 		$treeViewObj->tceFormsRecID = $this->row['uid'];
 		$treeViewObj->ext_IconMode = '0';
 		$treeViewObj->treeView = $this->fieldConfig['treeView'];
@@ -256,13 +281,9 @@ class tx_cpstcatree {
 		if (isset($this->row[$this->field])) {
 			$selectedItems = t3lib_div::trimExplode(',', $this->row[$this->field], 1);
 		} else {
-			if ((isset($this->row['pi_flexform'])) AND ($this->row['pi_flexform'])) {
+			if (($this->table == 'tt_content') AND ($this->row['pi_flexform'])) {
 				$xmlArray = t3lib_div::xml2array($this->row['pi_flexform']);
-				$sheet = ($this->fieldConfig['sheet']) ? $this->fieldConfig['FFsheet'] : 'sDEF';
-				$lang = ($this->fieldConfig['sheet']) ? $this->fieldConfig['FFlang'] : 'lDEF';
-				$value = ($this->fieldConfig['sheet']) ? $this->fieldConfig['FFvalue'] : 'vDEF';
-
-				$selectedItems = t3lib_div::trimExplode(',', $xmlArray['data'][$sheet][$lang][$this->field][$value], 1);
+				$selectedItems = t3lib_div::trimExplode(',', $xmlArray['data'][$this->piFlexForm['sheet']][$this->piFlexForm['lang']][$this->field][$this->piFlexForm['value']], 1);
 			}
 		}
 
