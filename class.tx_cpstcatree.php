@@ -65,7 +65,7 @@ class tx_cpstcatree {
 
 		$this->init($PA);
 
-    /*!*/$this->fieldConfig['maxitems'] = ($this->fieldConfig['maxitems'] == 2) ? 1 : $this->fieldConfig['maxitems'];
+    if (isset($this->fieldConfig['trueMaxItems'])) $this->fieldConfig['maxitems'] = $this->fieldConfig['trueMaxItems'];
 		$maxitems = t3lib_div::intInRange($this->fieldConfig['maxitems'], 0, 2000000000, 1000);
 		$minitems = t3lib_div::intInRange($this->fieldConfig['minitems'], 0);
 		$size = t3lib_div::intInRange($this->fieldConfig['size'],0, 2000000000, 1);
@@ -154,10 +154,16 @@ class tx_cpstcatree {
 			$this->row = t3lib_BEfunc::getRecord($this->table, $this->recID);
 		}
 		if (is_array($this->row)) {
-			$result = $GLOBALS['TYPO3_DB']->exec_SELECTquery('uid_foreign', $this->fieldConfig['MM'], 'uid_local='.$this->row['uid']);
-			while ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($result)) {
-				$this->selectedItems[] = $row['uid_foreign'];
+			if (isset($this->fieldConfig['MM'])) {
+				$result = $GLOBALS['TYPO3_DB']->exec_SELECTquery('uid_foreign', $this->fieldConfig['MM'], 'uid_local='.$this->row['uid']);
+				while ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($result)) {
+					$this->selectedItems[] = $row['uid_foreign'];
+				}
+			} else {
+				$this->setSelectedItems();
 			}
+		} else {
+			$this->row = array('uid' => $this->recID);
 		}
 
 		$this->PA['itemFormElName'] = 'data['.$this->table.']['.$this->recID.']['.$this->field.']';
@@ -213,6 +219,7 @@ class tx_cpstcatree {
 		t3lib_div::loadTCA($this->fieldConfig['foreign_table']);
 		$orderBy = $this->fieldConfig['foreign_table'].'.'.(($GLOBALS['TCA'][$this->fieldConfig['foreign_table']]['ctrl']['sortby']) ? $GLOBALS['TCA'][$this->fieldConfig['foreign_table']]['ctrl']['sortby'] : substr($GLOBALS['TCA'][$this->fieldConfig['foreign_table']]['ctrl']['default_sortby'], 9));
 		$this->parentField = $GLOBALS['TCA'][$this->fieldConfig['foreign_table']]['ctrl']['treeParentField'];
+		if (!$this->parentField) $this->parentField = 'pid';
 
 		$treeViewObj = t3lib_div::makeInstance('tx_cpstcatree_treeview');
 		$treeViewObj->thisScript = 'class.tx_cpstcatree.php';

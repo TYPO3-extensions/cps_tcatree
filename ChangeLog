@@ -1,3 +1,13 @@
+2011-03-31 Nicole Cordes  <cordes@cps-it.de>
+
+	* Release of cps_tcatree 0.1.1
+
+2011-03-31 Nicole Cordes  <cordes@cps-it.de>
+
+	* Fixed JavaScript method to add item to selected box when a new record is added
+	*	Fixed tree view for non mm-related fields
+	* Added manual
+
 2011-03-30 Nicole Cordes  <cordes@cps-it.de>
 
-	* initial release
+	* Initial release
