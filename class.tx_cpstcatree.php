@@ -291,6 +291,13 @@ class tx_cpstcatree {
 		$hideItems = tx_cpsdevlib_div::toListArray($fieldTSConfig['hideItems']);
 		if (count($hideItems)) $treeViewObj->TCEforms_nonSelectableItemsArray = array_merge($treeViewObj->TCEforms_nonSelectableItemsArray, $hideItems);
 
+		// Hook to manipulate clause
+		$parameter = array(
+			'clause' => &$clause,
+			'treeViewObj' => &$treeViewObj,
+		);
+		tx_cpsdevlib_div::callHookObjects('cps_tcatree', 'changeClauseHook', $parameter, $this);
+
 		$treeViewObj->init($clause, $orderBy);
 
 		$treeViewObj->TCEforms_itemFormElName = $this->itemFormElName;

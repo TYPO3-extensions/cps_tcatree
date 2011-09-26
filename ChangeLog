@@ -1,3 +1,11 @@
+2011-04-15 Nicole Cordes  <cordes@cps-it.de>
+
+	* Release of cps_tcatree 0.2.1
+
+2011-04-15 Nicole Cordes  <cordes@cps-it.de>
+
+	* Added hook to manipulate treeViewObj->clause from any extension
+
 2011-04-12 Nicole Cordes  <cordes@cps-it.de>
 
 	* Release of cps_tcatree 0.2.0
