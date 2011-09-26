@@ -1,5 +1,15 @@
 2011-04-15 Nicole Cordes  <cordes@cps-it.de>
 
+	* Release of cps_tcatree 0.2.2
+
+2011-04-15 Nicole Cordes  <cordes@cps-it.de>
+
+	* Fixed function for already selected items with no access
+	*	Fixed function to generate the title
+	*	Added uid to title tag for each item
+
+2011-04-15 Nicole Cordes  <cordes@cps-it.de>
+
 	* Release of cps_tcatree 0.2.1
 
 2011-04-15 Nicole Cordes  <cordes@cps-it.de>
