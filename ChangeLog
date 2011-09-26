@@ -1,3 +1,12 @@
+2011-04-11 Nicole Cordes  <cordes@cps-it.de>
+
+	* Release of cps_tcatree 0.1.6
+
+2011-04-11 Nicole Cordes  <cordes@cps-it.de>
+
+	* Added page TSConfig support (hideItems, keepItems, removeItems)
+	* Added integration of cps_devlib
+
 2011-04-05 Nicole Cordes  <cordes@cps-it.de>
 
 	* Release of cps_tcatree 0.1.5

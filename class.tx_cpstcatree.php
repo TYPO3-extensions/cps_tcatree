@@ -80,17 +80,6 @@ class tx_cpstcatree {
 		$minitems = t3lib_div::intInRange($this->fieldConfig['minitems'], 0);
 		$size = t3lib_div::intInRange($this->fieldConfig['size'],0, 2000000000, 1);
 
-		$selectedItems = $fobj->addSelectOptionsToItemArray($fobj->initItemArray($this->PA['fieldConf']), $this->PA['fieldConf'], $fobj->setTSconfig($this->table, $this->row), $this->field);
-		$selectedItems = $fobj->addItems($selectedItems, $this->PA['fieldTSConfig']['addItems.']);
-
-		$removeItems = t3lib_div::trimExplode(',', $this->PA['fieldTSConfig']['removeItems'], 1);
-
-		foreach($selectedItems as $key => $item)	{
-			if (in_array($item[1], $removeItems))	{
-				unset($selectedItems[$key]);
-			}
-		}
-
 		if (isset($this->PA['fieldTSConfig']['noMatchingValue_label'])) {
 			$nMV_label = $GLOBALS['LANG']->sL($this->PA['fieldTSConfig']['noMatchingValue_label']);
 		} else {
@@ -186,6 +175,8 @@ class tx_cpstcatree {
 		$this->itemFormElName = $this->PA['itemFormElName'];
 		$this->field = $this->field[0];
 
+		$this->PA['fieldTSConfig'] = t3lib_TCEforms::setTSconfig($this->table, $this->row, $this->field);
+
 		if (isset($this->fieldConfig['MM'])) {
 			$result = $GLOBALS['TYPO3_DB']->exec_SELECTquery('uid_foreign', $this->fieldConfig['MM'], 'uid_local='.$this->row['uid']);
 			while ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($result)) {
@@ -200,25 +191,23 @@ class tx_cpstcatree {
 		$ajaxObj->addContent('tree', $tree);
 	}
 
-	function getItemRootline () {
-		$selectedItemsArrayParents = array();
-		foreach($this->selectedItems as $item) {
+	function getItemRootline($ids) {
+		$rootLine = array();
+		foreach($ids as $item) {
 			$uid = $item;
-			$loopCheck = 100;
-			$rootLine = array();
-			while (($uid != 0) AND ($loopCheck > 0))	{
+			$itemRootLine = array();
+			while ($uid != 0)	{
 				$row = t3lib_BEfunc::getRecord($this->fieldConfig['foreign_table'], $uid, $this->parentField);
 				if ((is_array($row)) AND ($row[$this->parentField] > 0))	{
 					$uid = $row[$this->parentField];
-					$rootLine[] = $uid;
+					$itemRootLine[] = $uid;
 				} else {
 					$uid = 0;
 				}
-				$loopCheck--;
 			}
-			$selectedItemsArrayParents[$item] = $rootLine;
+			$rootLine[$item] = $itemRootLine;
 		}
-		return $selectedItemsArrayParents;
+		return $rootLine;
 	}
 
 	function registerNestedElement($itemName, &$fobj) {
@@ -266,14 +255,43 @@ class tx_cpstcatree {
 		$treeViewObj->expandable = $this->fieldConfig['expandable'];
 		$treeViewObj->expandFirst = $this->fieldConfig['expandFirst'];
 		$treeViewObj->expandAll = $this->fieldConfig['expandAll'];
-		$treeViewObj->init('', $orderBy);
+
+		$clause = '';
+		// removeItems
+		$removeItems = array();
+		if ($this->PA['fieldTSConfig']['removeItems']) $removeItems = tx_cpsdevlib_div::toListArray(tx_cpsdevlib_db::getRootLineDownwards($treeViewObj->table, $treeViewObj->parentField, $this->PA['fieldTSConfig']['removeItems']), '', 1, 1, 1);
+
+		// keepItems
+		$keepItems = tx_cpsdevlib_div::toListArray($this->PA['fieldTSConfig']['keepItems']);
+		foreach($keepItems as $value) {
+			if (($key = array_search($value, $removeItems)) !== false) {
+				unset($removeItems[$key]);
+				$rL = tx_cpsdevlib_div::toListArray(tx_cpsdevlib_db::getRootLineUpwards($treeViewObj->table, 'pid', $value), '', 1, 1, 1);
+				foreach($rL as $v) {
+					if (($k = array_search($v, $removeItems)) !== false) {
+						$treeViewObj->TCEforms_nonSelectableItemsArray[] = $v;
+						unset($removeItems[$k]);
+					}
+				}
+			}
+		}
+
+		// hideItems
+		$hideItems = tx_cpsdevlib_div::toListArray($this->PA['fieldTSConfig']['hideItems']);
+		if (count($hideItems)) $treeViewObj->TCEforms_nonSelectableItemsArray = array_merge($treeViewObj->TCEforms_nonSelectableItemsArray, $hideItems);
+
+		if (count($removeItems)) {
+			$clause = ' AND '.$treeViewObj->table.'.uid NOT IN ('.implode(',', $removeItems).')';
+		}
+
+		$treeViewObj->init($clause, $orderBy);
 
 		$treeViewObj->TCEforms_itemFormElName = $this->itemFormElName;
 		if ($this->table == $this->fieldConfig['foreign_table']) {
 			$treeViewObj->TCEforms_nonSelectableItemsArray[] = $this->row['uid'];
 		}
 		$treeViewObj->TCEforms_selectedItemsArray = $this->selectedItems;
-		$treeViewObj->selectedItemsArrayParents = $this->getItemRootline();
+		$treeViewObj->selectedItemsArrayParents = $this->getItemRootline($this->selectedItems);
 
 		$treeContent = $treeViewObj->getBrowsableTree();
 
