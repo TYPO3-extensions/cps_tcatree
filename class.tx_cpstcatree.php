@@ -304,6 +304,16 @@ class tx_cpstcatree {
 			$treeViewObj->TCEforms_nonSelectableItemsArray = array_merge($treeViewObj->TCEforms_nonSelectableItemsArray, $this->hideItems);
 		}
 
+			// Add foreign_table_where
+		if ($this->fieldConfig['foreign_table_where']) {
+				// Remove ORDER BY part if present
+			if (strpos(strtolower($this->fieldConfig['foreign_table_where']), 'order by') !== false) {
+				$clause .= substr($this->fieldConfig['foreign_table_where'], 0, strpos(strtolower($this->fieldConfig['foreign_table_where']), 'order by'));
+			} else {
+				$clause .= $this->fieldConfig['foreign_table_where'];
+			}
+		}
+
 		// Hook to manipulate clause
 		$parameter = array(
 			'clause' => &$clause,
