@@ -26,7 +26,9 @@
  ***************************************************************/
 /**
  * This function displays a selector styled as tree
- * The original code is borrowed from the extension "News" (tt_news) author: Rupert Germann <rupi@gmx.li>
+ * The original code is borrowed from the extension "News" (tt_news) author: Rupert Germann <rupi
+ *
+ * @gmx.li>
  *
  * @author	Nicole Cordes <cordes@cps-it.de>
  * @package TYPO3
@@ -54,7 +56,7 @@ class tx_cpstcatree_treeview extends t3lib_treeview {
 			foreach ($this->MOUNTS as $idx => $uid) {
 
 				$this->bank = $idx;
-				$isOpen = $this->stored[$idx][$uid] OR $this->expandFirst;
+				$isOpen = ($this->stored[$idx][$uid] OR $this->expandFirst);
 
 				$curIds = $this->ids;
 				$this->reset();
@@ -326,23 +328,28 @@ class tx_cpstcatree_treeview extends t3lib_treeview {
 	function getTitleStr($row, $titleLen = 30) {
 
 		// Generate title proper to label and label_alt
-		$title = t3lib_BEfunc::getProcessedValue($this->table, $GLOBALS['TCA'][$this->table]['ctrl']['label'], $row[$GLOBALS['TCA'][$this->table]['ctrl']['label']], 0, 0, false, $row['uid']);
-		if ($GLOBALS['TCA'][$this->table]['ctrl']['label_alt'] AND ($GLOBALS['TCA'][$this->table]['ctrl']['label_alt_force'] OR !strcmp($title, ''))) {
-			$altFields = t3lib_div::trimExplode(',', $GLOBALS['TCA'][$this->table]['ctrl']['label_alt'], 1);
-			$titleAlt = array();
-			if (!empty($title)) $titleAlt[] = $title;
-			foreach ($altFields as $value) {
-				$title = trim(strip_tags($row[$value]));
-				if (strcmp($title, '')) {
-					$title = t3lib_BEfunc::getProcessedValue($this->table, $value, $title, 0, 0, false, $row['uid']);
-					if (!$GLOBALS['TCA'][$this->table]['ctrl']['label_alt_force']) {
-						break;
+		if (!$row['uid']) {
+			// For root
+			$title = $row['title'];
+		} else {
+			$title = t3lib_BEfunc::getProcessedValue($this->table, $GLOBALS['TCA'][$this->table]['ctrl']['label'], $row[$GLOBALS['TCA'][$this->table]['ctrl']['label']], 0, 0, false, $row['uid']);
+			if ($GLOBALS['TCA'][$this->table]['ctrl']['label_alt'] AND ($GLOBALS['TCA'][$this->table]['ctrl']['label_alt_force'] OR !strcmp($title, ''))) {
+				$altFields = t3lib_div::trimExplode(',', $GLOBALS['TCA'][$this->table]['ctrl']['label_alt'], 1);
+				$titleAlt = array();
+				if (!empty($title)) $titleAlt[] = $title;
+				foreach ($altFields as $value) {
+					$title = trim(strip_tags($row[$value]));
+					if (strcmp($title, '')) {
+						$title = t3lib_BEfunc::getProcessedValue($this->table, $value, $title, 0, 0, false, $row['uid']);
+						if (!$GLOBALS['TCA'][$this->table]['ctrl']['label_alt_force']) {
+							break;
+						}
+						$titleAlt[] = $title;
 					}
-					$titleAlt[] = $title;
 				}
-			}
-			if ($GLOBALS['TCA'][$this->table]['ctrl']['label_alt_force']) {
-				$title = implode(', ', $titleAlt);
+				if ($GLOBALS['TCA'][$this->table]['ctrl']['label_alt_force']) {
+					$title = implode(', ', $titleAlt);
+				}
 			}
 		}
 

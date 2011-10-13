@@ -1,3 +1,21 @@
+2011-10-13 Nicole Cordes  <cordes@cps-it.de>
+
+	* Release of cps_tcatree 0.2.4
+
+2011-10-13 Nicole Cordes  <cordes@cps-it.de>
+
+	* Fixed table title output
+	* Fixed nested tree view if expandFirst is chosen
+
+2011-09-26 Nicole Cordes  <cordes@cps-it.de>
+
+	* Release of cps_tcatree 0.2.3
+
+2011-04-15 Nicole Cordes  <cordes@cps-it.de>
+
+	* Added proper generation of titles in relation to label and label_alt
+	* Added ->foreign_table_where to clause
+
 2011-04-15 Nicole Cordes  <cordes@cps-it.de>
 
 	* Release of cps_tcatree 0.2.2

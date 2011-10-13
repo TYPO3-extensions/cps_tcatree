@@ -1,39 +1,41 @@
 <?php
 /***************************************************************
-*  Copyright notice
-*
-*  (c) 2011 Nicole Cordes <cordes@cps-it.de>
-*  All rights reserved
-*
-*  This script is part of the TYPO3 project. The TYPO3 project is
-*  free software; you can redistribute it and/or modify
-*  it under the terms of the GNU General Public License as published by
-*  the Free Software Foundation; either version 2 of the License, or
-*  (at your option) any later version.
-*
-*  The GNU General Public License can be found at
-*  http://www.gnu.org/copyleft/gpl.html.
-*  A copy is found in the textfile GPL.txt and important notices to the license
-*  from the author is found in LICENSE.txt distributed with these scripts.
-*
-*
-*  This script is distributed in the hope that it will be useful,
-*  but WITHOUT ANY WARRANTY; without even the implied warranty of
-*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-*  GNU General Public License for more details.
-*
-*  This copyright notice MUST APPEAR in all copies of the script!
-***************************************************************/
+ *  Copyright notice
+ *
+ *  (c) 2011 Nicole Cordes <cordes@cps-it.de>
+ *  All rights reserved
+ *
+ *  This script is part of the TYPO3 project. The TYPO3 project is
+ *  free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  The GNU General Public License can be found at
+ *  http://www.gnu.org/copyleft/gpl.html.
+ *  A copy is found in the textfile GPL.txt and important notices to the license
+ *  from the author is found in LICENSE.txt distributed with these scripts.
+ *
+ *
+ *  This script is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  This copyright notice MUST APPEAR in all copies of the script!
+ ***************************************************************/
 /**
  * This function displays a selector styled as tree
- * The original code is borrowed from the extension "News" (tt_news) author: Rupert Germann <rupi@gmx.li>
+ * The original code is borrowed from the extension "News" (tt_news) author: Rupert Germann <rupi
+ *
+ * @gmx.li>
  *
  * @author	Nicole Cordes <cordes@cps-it.de>
  * @package TYPO3
  * @subpackage cps_tcatree
  */
 
-require_once(t3lib_extMgm::extPath('cps_tcatree').'lib/class.tx_cpstcatree_treeview.php');
+require_once(t3lib_extMgm::extPath('cps_tcatree') . 'lib/class.tx_cpstcatree_treeview.php');
 
 class tx_cpstcatree {
 	var $PA = array();
@@ -73,22 +75,22 @@ class tx_cpstcatree {
 	function getTree(&$PA, &$fobj) {
 
 		$fobj->additionalCode_pre['tx_cpstcatree'] = '
-<script src="'.t3lib_extMgm::extRelPath('cps_tcatree').'js/tx_cpstcatree.js" type="text/javascript"></script>';
+<script src="' . t3lib_extMgm::extRelPath('cps_tcatree') . 'js/tx_cpstcatree.js" type="text/javascript"></script>';
 
 		$this->init($PA);
 
-    if (isset($this->fieldConfig['trueMaxItems'])) $this->fieldConfig['maxitems'] = $this->fieldConfig['trueMaxItems'];
+		if (isset($this->fieldConfig['trueMaxItems'])) $this->fieldConfig['maxitems'] = $this->fieldConfig['trueMaxItems'];
 		$maxitems = t3lib_div::intInRange($this->fieldConfig['maxitems'], 0, 2000000000, 1000);
 		$minitems = t3lib_div::intInRange($this->fieldConfig['minitems'], 0);
-		$size = t3lib_div::intInRange($this->fieldConfig['size'],0, 2000000000, 1);
+		$size = t3lib_div::intInRange($this->fieldConfig['size'], 0, 2000000000, 1);
 
-		$this->registerRequiredProperty('range', $this->itemFormElName, array($minitems, $maxitems, 'imgName' => $this->table.'_'.$this->row['uid'].'_'.$this->field), $fobj);
+		$this->registerRequiredProperty('range', $this->itemFormElName, array($minitems, $maxitems, 'imgName' => $this->table . '_' . $this->row['uid'] . '_' . $this->field), $fobj);
 
-		$content .= '<input type="hidden" name="'.$this->itemFormElName.'_mul" value="'.($this->fieldConfig['multiple'] ? 1 : 0).'" />';
+		$content .= '<input type="hidden" name="' . $this->itemFormElName . '_mul" value="' . ($this->fieldConfig['multiple'] ? 1 : 0) . '" />';
 
 		if ($this->fieldConfig['foreign_table']) {
-			$treeContent = '<span id="'.$this->table.'_'.$this->fieldConfig['foreign_table'].'_tree">'.$this->renderTree().'</span>';
-			$thumbnails = '<div name="'.$this->itemFormElName.'_selTree" class="tree-div" style="position: relative; border: 1px solid #999; background: #fff; left: 0px; top: 0px; width: 350px; margin-bottom: 5px; padding: 0 10px 10px 0;">';
+			$treeContent = '<span id="' . $this->table . '_' . $this->fieldConfig['foreign_table'] . '_tree">' . $this->renderTree() . '</span>';
+			$thumbnails = '<div name="' . $this->itemFormElName . '_selTree" class="tree-div" style="position: relative; border: 1px solid #999; background: #fff; left: 0px; top: 0px; width: 350px; margin-bottom: 5px; padding: 0 10px 10px 0;">';
 			$thumbnails .= $treeContent;
 			$thumbnails .= '</div>';
 		}
@@ -97,16 +99,16 @@ class tx_cpstcatree {
 		if (isset($this->PA['fieldTSConfig']['noMatchingValue_label'])) {
 			$nMV_label = $GLOBALS['LANG']->sL($this->PA['fieldTSConfig']['noMatchingValue_label']);
 		} else {
-			$nMV_label = '[ '.$fobj->getLL('l_noMatchingValue').' ]';
+			$nMV_label = '[ ' . $fobj->getLL('l_noMatchingValue') . ' ]';
 		}
 		$nMV_label = @sprintf($nMV_label, $this->PA['itemFormElValue']);
 
 		// Check all selected items for hidden records
 		$itemArray = t3lib_div::trimExplode(',', $this->PA['itemFormElValue'], 1);
-		foreach($itemArray as $key => $item) {
+		foreach ($itemArray as $key => $item) {
 			$item = explode('|', $item, 2);
 			$evalValue = rawurldecode($item[0]);
-			if ((in_array($evalValue, $this->removeItems)) AND (!$this->PA['fieldTSConfig']['disableNoMatchingValueElement']))	{ // If item should be hidden
+			if ((in_array($evalValue, $this->removeItems)) AND (!$this->PA['fieldTSConfig']['disableNoMatchingValueElement'])) { // If item should be hidden
 				$item[1] = $nMV_label;
 			}
 			$item[1] = rawurldecode($item[1]);
@@ -121,8 +123,8 @@ class tx_cpstcatree {
 			'maxitems' => $maxitems,
 			'info' => '',
 			'headers' => array(
-				'selector' => $fobj->getLL('l_selected').':<br />',
-				'items' => $fobj->getLL('l_items').':<br />'
+				'selector' => $fobj->getLL('l_selected') . ':<br />',
+				'items' => $fobj->getLL('l_items') . ':<br />'
 			),
 			'noBrowser' => 1,
 			'thumbnails' => $thumbnails
@@ -131,16 +133,16 @@ class tx_cpstcatree {
 		// Get select field with browser
 		$content .= $fobj->dbFileIcons($this->itemFormElName, '', '', $itemArray, '', $params, $this->PA['onFocus']);
 
-		$altItem = '<input type="hidden" name="'.$this->itemFormElName.'" value="'.htmlspecialchars($this->PA['itemFormElValue']).'" />';
+		$altItem = '<input type="hidden" name="' . $this->itemFormElName . '" value="' . htmlspecialchars($this->PA['itemFormElValue']) . '" />';
 		$content = $fobj->renderWizards(array($content, $altItem), $this->fieldConfig['wizards'], $this->table, $this->row, $this->field, $this->PA, $this->itemFormElName, array());
 
 		if ((in_array('required', t3lib_div::trimExplode(',', $this->fieldConfig['eval'], 1))) AND ($this->NA_Items)) {
 			$this->registerRequiredProperty(
 				'range',
-				'data['.$this->table.']['.$this->row['uid'].'][noDisallowedCategories]',
-				array(1, 1, 'imgName'=>$this->table.'_'.$this->row['uid'].'_noDisallowedCategories'),
+					'data[' . $this->table . '][' . $this->row['uid'] . '][noDisallowedCategories]',
+				array(1, 1, 'imgName' => $this->table . '_' . $this->row['uid'] . '_noDisallowedCategories'),
 				$fobj);
-			$content .= '<input type="hidden" name="data['.$this->table.']['.$this->row['uid'].'][noDisallowedCategories]" value="'.($this->NA_Items ? '' : '1').'" />';
+			$content .= '<input type="hidden" name="data[' . $this->table . '][' . $this->row['uid'] . '][noDisallowedCategories]" value="' . ($this->NA_Items ? '' : '1') . '" />';
 		}
 
 		return $content;
@@ -169,19 +171,19 @@ class tx_cpstcatree {
 		if ($this->table == 'tt_content') {
 			$flexFormArray = t3lib_BEfunc::getFlexFormDS($GLOBALS['TCA']['tt_content']['columns']['pi_flexform']['config'], $this->row, $this->table);
 			$this->fieldConfig = $flexFormArray['sheets'][$this->field[1]]['ROOT']['el'][$this->field[0]]['TCEforms']['config'];
-			$this->PA['itemFormElName'] = 'data['.$this->table.']['.$this->recID.'][pi_flexform][data]['.$this->field[1].']['.$this->field[2].']['.$this->field[0].']['.$this->field[3].']';
+			$this->PA['itemFormElName'] = 'data[' . $this->table . '][' . $this->recID . '][pi_flexform][data][' . $this->field[1] . '][' . $this->field[2] . '][' . $this->field[0] . '][' . $this->field[3] . ']';
 			$this->fieldConfig['piFlexFormSheet'] = $this->field[1];
 			$this->fieldConfig['piFlexFormLang'] = $this->field[2];
 			$this->fieldConfig['piFlexFormValue'] = $this->field[3];
 		} else {
 			$this->fieldConfig = $GLOBALS['TCA'][$this->table]['columns'][$this->field[0]]['config'];
-			$this->PA['itemFormElName'] = 'data['.$this->table.']['.$this->recID.']['.$this->field[0].']';
+			$this->PA['itemFormElName'] = 'data[' . $this->table . '][' . $this->recID . '][' . $this->field[0] . ']';
 		}
 		$this->itemFormElName = $this->PA['itemFormElName'];
 		$this->field = $this->field[0];
 
 		if (isset($this->fieldConfig['MM'])) {
-			$result = $GLOBALS['TYPO3_DB']->exec_SELECTquery('uid_foreign', $this->fieldConfig['MM'], 'uid_local='.$this->row['uid']);
+			$result = $GLOBALS['TYPO3_DB']->exec_SELECTquery('uid_foreign', $this->fieldConfig['MM'], 'uid_local=' . $this->row['uid']);
 			while ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($result)) {
 				$this->selectedItems[] = $row['uid_foreign'];
 			}
@@ -196,12 +198,12 @@ class tx_cpstcatree {
 
 	function getItemRootline($ids) {
 		$rootLine = array();
-		foreach($ids as $item) {
+		foreach ($ids as $item) {
 			$uid = $item;
 			$itemRootLine = array();
-			while ($uid != 0)	{
+			while ($uid != 0) {
 				$row = t3lib_BEfunc::getRecord($this->fieldConfig['foreign_table'], $uid, $this->parentField);
-				if ((is_array($row)) AND ($row[$this->parentField] > 0))	{
+				if ((is_array($row)) AND ($row[$this->parentField] > 0)) {
 					$uid = $row[$this->parentField];
 					$itemRootLine[] = $uid;
 				} else {
@@ -235,20 +237,20 @@ class tx_cpstcatree {
 
 	function renderTree() {
 		t3lib_div::loadTCA($this->fieldConfig['foreign_table']);
-		$orderBy = $this->fieldConfig['foreign_table'].'.'.(($GLOBALS['TCA'][$this->fieldConfig['foreign_table']]['ctrl']['sortby']) ? $GLOBALS['TCA'][$this->fieldConfig['foreign_table']]['ctrl']['sortby'] : substr($GLOBALS['TCA'][$this->fieldConfig['foreign_table']]['ctrl']['default_sortby'], 9));
+		$orderBy = (($GLOBALS['TCA'][$this->fieldConfig['foreign_table']]['ctrl']['sortby']) ? $this->fieldConfig['foreign_table'] . '.' . $GLOBALS['TCA'][$this->fieldConfig['foreign_table']]['ctrl']['sortby'] : substr($GLOBALS['TCA'][$this->fieldConfig['foreign_table']]['ctrl']['default_sortby'], 9));
 		$this->parentField = $GLOBALS['TCA'][$this->fieldConfig['foreign_table']]['ctrl']['treeParentField'];
 		if (!$this->parentField) $this->parentField = 'pid';
 
 		$treeViewObj = t3lib_div::makeInstance('tx_cpstcatree_treeview');
 		$treeViewObj->thisScript = 'class.tx_cpstcatree.php';
 		$treeViewObj->title = $GLOBALS['LANG']->sL($GLOBALS['TCA'][$this->fieldConfig['foreign_table']]['ctrl']['title']);
-		$treeViewObj->treeName = $this->table.'_'.$this->field.'_tree';
+		$treeViewObj->treeName = $this->table . '_' . $this->field . '_tree';
 		$treeViewObj->table = $this->fieldConfig['foreign_table'];
 		$treeViewObj->parentField = $this->parentField;
 		$treeViewObj->fieldArray = array('*');
 		$treeViewObj->tceFormsTable = $this->table;
 		if ($this->table == 'tt_content') {
-			$treeViewObj->tceFormsField = $this->field.','.$this->fieldConfig['piFlexFormSheet'].','.$this->fieldConfig['piFlexFormLang'].','.$this->fieldConfig['piFlexFormValue'].','.$this->row['CType'].','.$this->row['list_type'];
+			$treeViewObj->tceFormsField = $this->field . ',' . $this->fieldConfig['piFlexFormSheet'] . ',' . $this->fieldConfig['piFlexFormLang'] . ',' . $this->fieldConfig['piFlexFormValue'] . ',' . $this->row['CType'] . ',' . $this->row['list_type'];
 		} else {
 			$treeViewObj->tceFormsField = $this->field;
 		}
@@ -261,8 +263,8 @@ class tx_cpstcatree {
 
 		if ($this->table == 'tt_content') {
 			$fieldTSConfig = t3lib_TCEforms::setTSconfig($this->table, $this->row);
-			$fieldTSConfig = $fieldTSConfig['pi_flexform'][$this->row['list_type'].'.'][$this->field.'.'];
-		} else{
+			$fieldTSConfig = $fieldTSConfig['pi_flexform'][$this->row['list_type'] . '.'][$this->field . '.'];
+		} else {
 			$fieldTSConfig = t3lib_TCEforms::setTSconfig($this->table, $this->row, $this->field);
 		}
 
@@ -275,13 +277,13 @@ class tx_cpstcatree {
 		// keepItems
 		if (isset($fieldTSConfig['keepItems'])) {
 			$this->keepItems = tx_cpsdevlib_div::toListArray($fieldTSConfig['keepItems']);
-			if (count($this->removeItems)) {	// If items were removed from list check keepItems to add back
-				foreach($this->keepItems as $value) {
+			if (count($this->removeItems)) { // If items were removed from list check keepItems to add back
+				foreach ($this->keepItems as $value) {
 					if (($key = array_search($value, $this->removeItems)) !== false) {
 						unset($this->removeItems[$key]);
 						// Get rootline upwards to restore parent items
 						$rL = tx_cpsdevlib_div::toListArray(tx_cpsdevlib_db::getRootLineUpwards($treeViewObj->table, 'pid', $value), '', 1, 1, 1);
-						foreach($rL as $v) {
+						foreach ($rL as $v) {
 							if (($k = array_search($v, $this->removeItems)) !== false) {
 								$treeViewObj->TCEforms_nonSelectableItemsArray[] = $v;
 								unset($this->removeItems[$k]);
@@ -289,14 +291,14 @@ class tx_cpstcatree {
 						}
 					}
 				}
-			} else {  // If just keepItems is set only show selected
+			} else { // If just keepItems is set only show selected
 				if (count($this->keepItems)) {
-					$clause = ' AND '.$treeViewObj->table.'.uid IN ('.implode(',', $this->keepItems).')';
+					$clause = ' AND ' . $treeViewObj->table . '.uid IN (' . implode(',', $this->keepItems) . ')';
 				}
 			}
 		}
 
-		if (count($this->removeItems)) $clause = ' AND '.$treeViewObj->table.'.uid NOT IN ('.implode(',', $this->removeItems).')';
+		if (count($this->removeItems)) $clause = ' AND ' . $treeViewObj->table . '.uid NOT IN (' . implode(',', $this->removeItems) . ')';
 
 		// hideItems
 		if (isset($fieldTSConfig['hideItems'])) {
@@ -304,9 +306,9 @@ class tx_cpstcatree {
 			$treeViewObj->TCEforms_nonSelectableItemsArray = array_merge($treeViewObj->TCEforms_nonSelectableItemsArray, $this->hideItems);
 		}
 
-			// Add foreign_table_where
+		// Add foreign_table_where
 		if ($this->fieldConfig['foreign_table_where']) {
-				// Remove ORDER BY part if present
+			// Remove ORDER BY part if present
 			if (strpos(strtolower($this->fieldConfig['foreign_table_where']), 'order by') !== false) {
 				$clause .= substr($this->fieldConfig['foreign_table_where'], 0, strpos(strtolower($this->fieldConfig['foreign_table_where']), 'order by'));
 			} else {
@@ -347,7 +349,7 @@ class tx_cpstcatree {
 			}
 		}
 
-		foreach($selectedItems as $item) {
+		foreach ($selectedItems as $item) {
 			$item = t3lib_div::trimExplode('|', $item, 1);
 			$this->selectedItems[] = $item[0];
 		}
