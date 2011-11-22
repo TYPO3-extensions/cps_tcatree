@@ -38,6 +38,13 @@
 require_once (PATH_t3lib . 'class.t3lib_treeview.php');
 
 class tx_cpstcatree_treeview extends t3lib_treeview {
+
+	/**
+	 * Show only accessible pages in tree or not
+	 * @var int $ignorePermsClause
+	 */
+	var $ignorePermsClause;
+
 	var $TCEforms_itemFormElName;
 	var $TCEforms_nonSelectableItemsArray = array();
 
@@ -101,6 +108,30 @@ class tx_cpstcatree_treeview extends t3lib_treeview {
 			$treeArr[] = array('HTML' => '<img' . t3lib_iconWorks::skinImg($this->backPath, 'gfx/ol/minusonly.gif') . ' alt="" /><em>' . $GLOBALS['LANG']->sL('LLL:EXT:cps_tcatree/locallang_tca.xml:cps_tcatree.treeview.noAccess') . '</em>');
 		}
 
+		// If no tree was found and table is pages then try create table with mounts
+		if (!count($this->ids) and $this->table == 'pages') {
+			$webmounts = $GLOBALS['BE_USER']->returnWebmounts();
+			if (is_array($webmounts)) {
+				$pidArray = array();
+
+				// PIDs of webmounts
+				foreach ($webmounts as $key => $mount) {
+					// Get record from database to get pid
+					$row = t3lib_BEfunc::getRecord($this->table, $mount, 'pid');
+
+					$pidArray[$row['pid']] = $row['pid'];
+				}
+				unset($key, $mount);
+
+				// Generate Tree
+				foreach ($pidArray as $key => $value) {
+					$this->getTree($value, ($this->treeView) ? 999 : 0, '', $rootRec['_SUBCSSCLASS']);
+					$treeArr = $this->tree;
+				}
+				unset($key, $value);
+			}
+		}
+
 		return $this->printTree($treeArr);
 	}
 
@@ -141,9 +172,10 @@ class tx_cpstcatree_treeview extends t3lib_treeview {
 		}
 
 		foreach ($allRows as $row) {
-			$a++;
 
-			if ((!(t3lib_div::inList('pages', $this->table))) OR (t3lib_BEfunc::readPageAccess($row['uid'], $GLOBALS['BE_USER']->getPagePermsClause(1)))) {
+			if ((!(t3lib_div::inList('pages', $this->table))) OR (t3lib_BEfunc::readPageAccess($row['uid'], $GLOBALS['BE_USER']->getPagePermsClause(1))) OR $this->ignorePermsClause) {
+				$a++;
+
 				$newID = $row['uid'];
 				$this->tree[] = array();
 				end($this->tree);

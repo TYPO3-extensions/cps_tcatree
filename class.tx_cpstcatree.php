@@ -260,7 +260,12 @@ class tx_cpstcatree {
 		$treeViewObj->expandable = $this->fieldConfig['expandable'];
 		$treeViewObj->expandFirst = $this->fieldConfig['expandFirst'];
 		$treeViewObj->expandAll = $this->fieldConfig['expandAll'];
+		$treeViewObj->ignorePermsClause = $this->fieldConfig['ignorePermsClause'];
 
+		// Get TSconfig
+		$TSConfig = t3lib_BEfunc::getTCEFORM_TSconfig($this->table, $this->row);
+
+		// Get TSconfig for field
 		if ($this->table == 'tt_content') {
 			$fieldTSConfig = t3lib_TCEforms::setTSconfig($this->table, $this->row);
 			$fieldTSConfig = $fieldTSConfig['pi_flexform'][$this->row['list_type'] . '.'][$this->field . '.'];
@@ -310,10 +315,22 @@ class tx_cpstcatree {
 		if ($this->fieldConfig['foreign_table_where']) {
 			// Remove ORDER BY part if present
 			if (strpos(strtolower($this->fieldConfig['foreign_table_where']), 'order by') !== false) {
-				$clause .= substr($this->fieldConfig['foreign_table_where'], 0, strpos(strtolower($this->fieldConfig['foreign_table_where']), 'order by'));
+				$ftWhere = substr($this->fieldConfig['foreign_table_where'], 0, strpos(strtolower($this->fieldConfig['foreign_table_where']), 'order by'));
 			} else {
-				$clause .= $this->fieldConfig['foreign_table_where'];
+				$ftWhere = $this->fieldConfig['foreign_table_where'];
 			}
+
+			// Replace special marker in foreign_table_where
+			$ftWhere = str_replace('###CURRENT_PID###', intval($TSconfig['_CURRENT_PID']), $ftWhere);
+			$ftWhere = str_replace('###THIS_UID###', intval($TSconfig['_THIS_UID']), $ftWhere);
+			$ftWhere = str_replace('###THIS_CID###', intval($TSconfig['_THIS_CID']), $ftWhere);
+			$ftWhere = str_replace('###STORAGE_PID###', intval($TSconfig['_STORAGE_PID']), $ftWhere);
+			$ftWhere = str_replace('###SITEROOT###', intval($TSconfig['_SITEROOT']), $ftWhere);
+			$ftWhere = str_replace('###PAGE_TSCONFIG_ID###', intval($TSconfig[$this->field]['PAGE_TSCONFIG_ID']), $ftWhere);
+			$ftWhere = str_replace('###PAGE_TSCONFIG_IDLIST###', $GLOBALS['TYPO3_DB']->cleanIntList($TSconfig[$this->field]['PAGE_TSCONFIG_IDLIST']), $ftWhere);
+			$ftWhere = str_replace('###PAGE_TSCONFIG_STR###', $GLOBALS['TYPO3_DB']->quoteStr($TSconfig[$this->field]['PAGE_TSCONFIG_STR'], $this->fieldConfig['foreign_table']), $ftWhere);
+
+			$clause .= ' ' . trim($ftWhere);
 		}
 
 		// Hook to manipulate clause
