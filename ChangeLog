@@ -1,3 +1,12 @@
+2011-11-22 Nicole Cordes  <cordes@cps-it.de>
+
+	* Release of cps_tcatree 0.3.0
+
+2011-11-22 Nicole Cordes  <cordes@cps-it.de>
+
+	* Added output of webmounts for pages when no root page is accessible (and ignorePermsClause is false)
+	* Added new parameter ignorePermsClause for field configuration (in TCA) to show all pages even when no access was given
+
 2011-10-13 Nicole Cordes  <cordes@cps-it.de>
 
 	* Release of cps_tcatree 0.2.4
@@ -23,8 +32,8 @@
 2011-04-15 Nicole Cordes  <cordes@cps-it.de>
 
 	* Fixed function for already selected items with no access
-	*	Fixed function to generate the title
-	*	Added uid to title tag for each item
+	* Fixed function to generate the title
+	* Added uid to title tag for each item
 
 2011-04-15 Nicole Cordes  <cordes@cps-it.de>
 
