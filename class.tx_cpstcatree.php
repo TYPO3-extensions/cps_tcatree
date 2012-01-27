@@ -90,7 +90,16 @@ class tx_cpstcatree {
 
 		if ($this->fieldConfig['foreign_table']) {
 			$treeContent = '<span id="' . $this->table . '_' . $this->fieldConfig['foreign_table'] . '_tree">' . $this->renderTree() . '</span>';
-			$thumbnails = '<div name="' . $this->itemFormElName . '_selTree" class="tree-div" style="position: relative; border: 1px solid #999; background: #fff; left: 0px; top: 0px; width: 350px; margin-bottom: 5px; padding: 0 10px 10px 0;">';
+
+			// Count items
+			$count = substr_count($treeContent, '<li');
+
+			// Add height to tcatree div
+			$height = '';
+			if ($count > $this->fieldConfig['autoSizeMax']) {
+				$height = ' height: ' . (22 * $this->fieldConfig['autoSizeMax']) . 'px; overflow: scroll;';
+			}
+			$thumbnails = '<div name="' . $this->itemFormElName . '_selTree" class="tree-div" style="position: relative; border: 1px solid #999; background: #fff; left: 0px; top: 0px; width: 350px; margin-bottom: 5px; padding: 0 10px 10px 0;' . $height . '">';
 			$thumbnails .= $treeContent;
 			$thumbnails .= '</div>';
 		}
