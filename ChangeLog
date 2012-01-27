@@ -1,3 +1,15 @@
+2012-01-27 Nicole Cordes  <cordes@cps-it.de>
+
+	* Release of cps_tcatree 0.4.0
+
+2012-01-27 Nicole Cordes  <cordes@cps-it.de>
+
+	* Added support to configure height for tcatree div
+
+2012-01-26 Nicole Cordes  <cordes@cps-it.de>
+
+	* Added support for marker ###REC_FIELD_[fieldname]### in foreign_table_where
+
 2011-11-22 Nicole Cordes  <cordes@cps-it.de>
 
 	* Release of cps_tcatree 0.3.0
