@@ -96,8 +96,8 @@ class tx_cpstcatree {
 		}
 
 		// Get label for non matching values from tsconfig or t3lib_tceforms
-		if (isset($this->PA['fieldTSConfig']['noMatchingValue_label'])) {
-			$nMV_label = $GLOBALS['LANG']->sL($this->PA['fieldTSConfig']['noMatchingValue_label']);
+		if (isset($this->PA['fieldTSconfig']['noMatchingValue_label'])) {
+			$nMV_label = $GLOBALS['LANG']->sL($this->PA['fieldTSconfig']['noMatchingValue_label']);
 		} else {
 			$nMV_label = '[ ' . $fobj->getLL('l_noMatchingValue') . ' ]';
 		}
@@ -108,7 +108,7 @@ class tx_cpstcatree {
 		foreach ($itemArray as $key => $item) {
 			$item = explode('|', $item, 2);
 			$evalValue = rawurldecode($item[0]);
-			if ((in_array($evalValue, $this->removeItems)) AND (!$this->PA['fieldTSConfig']['disableNoMatchingValueElement'])) { // If item should be hidden
+			if ((in_array($evalValue, $this->removeItems)) AND (!$this->PA['fieldTSconfig']['disableNoMatchingValueElement'])) { // If item should be hidden
 				$item[1] = $nMV_label;
 			}
 			$item[1] = rawurldecode($item[1]);
@@ -238,16 +238,29 @@ class tx_cpstcatree {
 	function renderTree() {
 		t3lib_div::loadTCA($this->fieldConfig['foreign_table']);
 		$orderBy = (($GLOBALS['TCA'][$this->fieldConfig['foreign_table']]['ctrl']['sortby']) ? $this->fieldConfig['foreign_table'] . '.' . $GLOBALS['TCA'][$this->fieldConfig['foreign_table']]['ctrl']['sortby'] : substr($GLOBALS['TCA'][$this->fieldConfig['foreign_table']]['ctrl']['default_sortby'], 9));
-		$this->parentField = $GLOBALS['TCA'][$this->fieldConfig['foreign_table']]['ctrl']['treeParentField'];
-		if (!$this->parentField) $this->parentField = 'pid';
 
 		$treeViewObj = t3lib_div::makeInstance('tx_cpstcatree_treeview');
 		$treeViewObj->thisScript = 'class.tx_cpstcatree.php';
 		$treeViewObj->title = $GLOBALS['LANG']->sL($GLOBALS['TCA'][$this->fieldConfig['foreign_table']]['ctrl']['title']);
 		$treeViewObj->treeName = $this->table . '_' . $this->field . '_tree';
 		$treeViewObj->table = $this->fieldConfig['foreign_table'];
-		$treeViewObj->parentField = $this->parentField;
-		$treeViewObj->fieldArray = array('*');
+
+		// Set parent field of table
+		if (isset($this->fieldConfig['treeViewParentField'])) {
+			$this->parentField = $this->fieldConfig['treeViewParentField'];
+		} else {
+			$this->parentField = $GLOBALS['TCA'][$this->fieldConfig['foreign_table']]['ctrl']['treeParentField'];
+		}
+		if (!$this->parentField) $this->parentField = 'pid';
+		$treeViewObj->parentField = $this->parentField;                                                                                                                                                                                                                                                        		$treeViewObj->parentField = $this->parentField;
+
+		// Set select fields
+		$treeViewObj->fieldArray = array('uid');
+		$treeViewObj->addField($GLOBALS['TCA'][$treeViewObj->table]['ctrl']['label']);
+		if (isset($GLOBALS['TCA'][$treeViewObj->table]['ctrl']['label_alt'])) {
+			$treeViewObj->addField($GLOBALS['TCA'][$treeViewObj->table]['ctrl']['label_alt']);
+		}
+
 		$treeViewObj->tceFormsTable = $this->table;
 		if ($this->table == 'tt_content') {
 			$treeViewObj->tceFormsField = $this->field . ',' . $this->fieldConfig['piFlexFormSheet'] . ',' . $this->fieldConfig['piFlexFormLang'] . ',' . $this->fieldConfig['piFlexFormValue'] . ',' . $this->row['CType'] . ',' . $this->row['list_type'];
@@ -263,25 +276,25 @@ class tx_cpstcatree {
 		$treeViewObj->ignorePermsClause = $this->fieldConfig['ignorePermsClause'];
 
 		// Get TSconfig
-		$TSConfig = t3lib_BEfunc::getTCEFORM_TSconfig($this->table, $this->row);
+		$TSconfig = t3lib_BEfunc::getTCEFORM_TSconfig($this->table, $this->row);
 
 		// Get TSconfig for field
 		if ($this->table == 'tt_content') {
-			$fieldTSConfig = t3lib_TCEforms::setTSconfig($this->table, $this->row);
-			$fieldTSConfig = $fieldTSConfig['pi_flexform'][$this->row['list_type'] . '.'][$this->field . '.'];
+			$fieldTSconfig = t3lib_TCEforms::setTSconfig($this->table, $this->row);
+			$fieldTSconfig = $fieldTSconfig['pi_flexform'][$this->row['list_type'] . '.'][$this->field . '.'];
 		} else {
-			$fieldTSConfig = t3lib_TCEforms::setTSconfig($this->table, $this->row, $this->field);
+			$fieldTSconfig = t3lib_TCEforms::setTSconfig($this->table, $this->row, $this->field);
 		}
 
 		$clause = '';
 		// removeItems
-		if (isset($fieldTSConfig['removeItems'])) {
-			$this->removeItems = tx_cpsdevlib_div::toListArray(tx_cpsdevlib_db::getRootLineDownwards($treeViewObj->table, $treeViewObj->parentField, $fieldTSConfig['removeItems']), '', 1, 1, 1);
+		if (isset($fieldTSconfig['removeItems'])) {
+			$this->removeItems = tx_cpsdevlib_div::toListArray(tx_cpsdevlib_db::getRootLineDownwards($treeViewObj->table, $treeViewObj->parentField, $fieldTSconfig['removeItems']), '', 1, 1, 1);
 		}
 
 		// keepItems
-		if (isset($fieldTSConfig['keepItems'])) {
-			$this->keepItems = tx_cpsdevlib_div::toListArray($fieldTSConfig['keepItems']);
+		if (isset($fieldTSconfig['keepItems'])) {
+			$this->keepItems = tx_cpsdevlib_div::toListArray($fieldTSconfig['keepItems']);
 			if (count($this->removeItems)) { // If items were removed from list check keepItems to add back
 				foreach ($this->keepItems as $value) {
 					if (($key = array_search($value, $this->removeItems)) !== false) {
@@ -306,8 +319,8 @@ class tx_cpstcatree {
 		if (count($this->removeItems)) $clause = ' AND ' . $treeViewObj->table . '.uid NOT IN (' . implode(',', $this->removeItems) . ')';
 
 		// hideItems
-		if (isset($fieldTSConfig['hideItems'])) {
-			$this->hideItems = tx_cpsdevlib_div::toListArray($fieldTSConfig['hideItems']);
+		if (isset($fieldTSconfig['hideItems'])) {
+			$this->hideItems = tx_cpsdevlib_div::toListArray($fieldTSconfig['hideItems']);
 			$treeViewObj->TCEforms_nonSelectableItemsArray = array_merge($treeViewObj->TCEforms_nonSelectableItemsArray, $this->hideItems);
 		}
 
@@ -318,6 +331,22 @@ class tx_cpstcatree {
 				$ftWhere = substr($this->fieldConfig['foreign_table_where'], 0, strpos(strtolower($this->fieldConfig['foreign_table_where']), 'order by'));
 			} else {
 				$ftWhere = $this->fieldConfig['foreign_table_where'];
+			}
+
+			// Replace record maker in foreign_table_where
+			if (strstr($ftWhere, '###REC_FIELD_')) {
+				$ftWhereParts = explode('###REC_FIELD_', $ftWhere);
+				foreach ($ftWhereParts as $key => $value) {
+					if ($key) {
+						$ftWhereSubpart = explode('###', $value, 2);
+						if (substr($ftWhereParts[0], -1) === '\'' && $ftWhereSubpart[1]{0} === '\'') {
+							$ftWhereParts[$key] = $GLOBALS['TYPO3_DB']->quoteStr($TSconfig['_THIS_ROW'][$ftWhereSubpart[0]], $treeViewObj->table) . $ftWhereSubpart[1];
+						} else {
+							$ftWhereParts[$key] = $GLOBALS['TYPO3_DB']->fullQuoteStr($TSconfig['_THIS_ROW'][$ftWhereSubpart[0]], $treeViewObj->table) . $ftWhereSubpart[1];
+						}
+					}
+				}
+				$ftWhere = implode('', $ftWhereParts);
 			}
 
 			// Replace special marker in foreign_table_where
