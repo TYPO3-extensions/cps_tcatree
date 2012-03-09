@@ -1,5 +1,13 @@
 2012-01-27 Nicole Cordes  <cordes@cps-it.de>
 
+	* Release of cps_tcatree 0.4.1
+
+2012-03-09 Nicole Cordes  <cordes@cps-it.de>
+
+	* Fixed problem with height="0px" (Thanks to Sven Burkert)
+
+2012-01-27 Nicole Cordes  <cordes@cps-it.de>
+
 	* Release of cps_tcatree 0.4.0
 
 2012-01-27 Nicole Cordes  <cordes@cps-it.de>

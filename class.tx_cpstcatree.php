@@ -96,7 +96,7 @@ class tx_cpstcatree {
 
 			// Add height to tcatree div
 			$height = '';
-			if ($count > $this->fieldConfig['autoSizeMax']) {
+			if ((isset($this->fieldConfig['autoSizeMax'])) && ($count > $this->fieldConfig['autoSizeMax'])) {
 				$height = ' height: ' . (22 * $this->fieldConfig['autoSizeMax']) . 'px; overflow: scroll;';
 			}
 			$thumbnails = '<div name="' . $this->itemFormElName . '_selTree" class="tree-div" style="position: relative; border: 1px solid #999; background: #fff; left: 0px; top: 0px; width: 350px; margin-bottom: 5px; padding: 0 10px 10px 0;' . $height . '">';
