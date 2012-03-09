@@ -3,7 +3,7 @@
 ########################################################################
 # Extension Manager/Repository config file for ext "cps_tcatree".
 #
-# Auto generated 27-01-2012 11:27
+# Auto generated 09-03-2012 10:42
 #
 # Manual updates:
 # Only the data in the array - everything else is removed by next
@@ -15,7 +15,7 @@ $EM_CONF[$_EXTKEY] = array(
 	'description' => 'Adds a new type to tca configuration to display record lists (like tt_news)',
 	'category' => 'be',
 	'shy' => 0,
-	'version' => '0.4.0',
+	'version' => '0.4.1',
 	'dependencies' => 'cps_devlib',
 	'conflicts' => '',
 	'priority' => '',
@@ -43,7 +43,7 @@ $EM_CONF[$_EXTKEY] = array(
 		'suggests' => array(
 		),
 	),
-	'_md5_values_when_last_written' => 'a:9:{s:9:"ChangeLog";s:4:"5247";s:23:"class.tx_cpstcatree.php";s:4:"967d";s:12:"ext_icon.gif";s:4:"de80";s:17:"ext_localconf.php";s:4:"0b5c";s:14:"ext_tables.php";s:4:"764e";s:17:"locallang_tca.xml";s:4:"1e49";s:14:"doc/manual.sxw";s:4:"f1f2";s:19:"js/tx_cpstcatree.js";s:4:"d190";s:36:"lib/class.tx_cpstcatree_treeview.php";s:4:"fc92";}',
+	'_md5_values_when_last_written' => 'a:9:{s:9:"ChangeLog";s:4:"154b";s:23:"class.tx_cpstcatree.php";s:4:"431d";s:12:"ext_icon.gif";s:4:"de80";s:17:"ext_localconf.php";s:4:"0b5c";s:14:"ext_tables.php";s:4:"764e";s:17:"locallang_tca.xml";s:4:"1e49";s:14:"doc/manual.sxw";s:4:"f1f2";s:19:"js/tx_cpstcatree.js";s:4:"d190";s:36:"lib/class.tx_cpstcatree_treeview.php";s:4:"fc92";}',
 	'suggests' => array(
 	),
 );
